@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>PharmaCare – Pharmacy Management System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--tx:#1b2430;--mu:#64707f;--ac:#0f766e;--bd:#dde3ea;--rd:#c0392b;--am:#b7791f;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161d;--card:#18212b;--tx:#e6ebf1;--mu:#8b97a6;--ac:#2dd4bf;--bd:#2a3644;--rd:#f87171;--am:#fbbf24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#10161d;--card:#18212b;--tx:#e6ebf1;--mu:#8b97a6;--ac:#2dd4bf;--bd:#2a3644;--rd:#f87171;--am:#fbbf24;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,Segoe UI,sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--bd);padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+h1{font-size:17px;margin:0 12px 0 0;color:var(--ac)}nav{display:flex;gap:4px;flex-wrap:wrap}
+nav button,.btn{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:6px 11px;border-radius:7px;cursor:pointer;font:inherit}
+nav button.on,.btn.p{background:var(--ac);color:#fff;border-color:var(--ac)}.btn.d{color:var(--rd)}
+main{max-width:1100px;margin:auto;padding:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px}.grid .card{margin:0}
+.k{color:var(--mu);font-size:12px}.v{font-size:22px;font-weight:600}h2{font-size:15px;margin:0 0 8px}a{color:var(--ac)}
+input,select,textarea{background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:7px;padding:6px 8px;font:inherit;max-width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.sc{overflow-x:auto}
+table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd);vertical-align:top;overflow-wrap:anywhere}th{color:var(--mu);font-weight:500;font-size:12px}
+.tag{padding:1px 7px;border-radius:9px;font-size:11px;border:1px solid var(--bd)}.r{color:var(--rd)}.a{color:var(--am)}.g{color:var(--ac)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:760px){.two{grid-template-columns:1fr}}
+.note{color:var(--mu);font-size:12px}#msg{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 14px;border-radius:8px;display:none;z-index:9}
+@media(min-width:900px){body{display:grid;grid-template-columns:210px 1fr}header{flex-direction:column;align-items:stretch;height:100vh;position:sticky;top:0;border-right:1px solid var(--bd);border-bottom:0;padding:16px 12px}nav{flex-direction:column}nav button{text-align:left;padding:9px 12px}h1{margin:0 0 12px}}
+main{max-width:1600px}.cartbar{display:none}
+@media(min-width:900px){body{font-size:15px}main{padding:24px 32px}.card{padding:20px}h2{font-size:18px;margin-bottom:12px}th,td{padding:11px 14px}input,select,textarea{padding:11px 13px;font-size:15px}.btn,nav button{padding:11px 18px;font-size:15px}.two{gap:22px}.grid{gap:16px}.v{font-size:30px}.pos{grid-template-columns:1.15fr 1fr}.pos .card{min-height:68vh}.pos td{font-size:15.5px}}
+@media(min-width:1400px){body{font-size:16px}.pos td,input,select{font-size:16px}}
+@media(max-width:760px){body{font-size:15px}header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;padding:8px 10px}h1{width:100%;margin:0}nav{width:100%;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:4px}nav button{flex:0 0 auto;min-height:42px;padding:8px 14px}main{padding:10px 10px 84px}.card{padding:12px}input,select,textarea{font-size:16px;min-height:44px;padding:8px 10px}.btn{min-height:44px;padding:8px 14px}.row>input{flex:1 1 140px}.grid{grid-template-columns:repeat(2,1fr)}.v{font-size:20px}
+ .cartbar{display:flex;justify-content:space-between;align-items:center;position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--ac);color:#fff;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));font-weight:600;cursor:pointer}}
+@media screen and (max-width:760px){
+.stack,.stack tbody{display:block}.stack tr:first-child{display:none}
+.stack tr{display:block;border:1px solid var(--bd);border-radius:10px;padding:8px 12px;margin-bottom:10px;background:var(--card)}
+.stack td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;padding:5px 0;text-align:right}
+.stack td::before{content:attr(data-l);color:var(--mu);font-size:12px;text-align:left;flex:0 0 36%}
+.stack td input{width:100px!important;min-height:38px}
+table.wrap:not(.stack),table.wrap:not(.stack) tbody{display:block}
+table.wrap:not(.stack) tr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;border-bottom:1px solid var(--bd);padding:10px 0}
+table.wrap:not(.stack) td{border:0;padding:0}table.wrap:not(.stack) td:first-child{flex:1 1 100%}}
+@media print{body *{visibility:hidden}#inv,#inv *{visibility:visible}#inv{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}body,#inv .card{background:#fff!important;color:#000!important}}
+</style></head><body>
+<header><h1>💊 PharmaCare<br><span class="note">Square Pharma catalog</span></h1><nav id="nav"></nav></header>
+<main id="app"></main><div id="msg"></div>
+<script>
+const $=s=>document.querySelector(s),KEY='pharmacare_v5';
+const lds=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),today=()=>lds(new Date()),addD=n=>{let d=new Date();d.setDate(d.getDate()+n);return lds(d)},fdt=x=>{const d=new Date(x);return lds(d)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+const money=n=>'৳'+(+n).toLocaleString('en-US',{maximumFractionDigits:2});
+const RX=/cef|floxacin|cillin|trimethoprim|clav|enoxaparin|tirzepatide|molnupiravir|darbepoetin|dienogest|suvorexant|mirtazapine|colchicine|solifenacin|mirabegron|ciprofibrate|metformin|gliclazide|rifaximin|mesalazine|fluticasone|pizotifen|ketoprofen|chloramphenicol/i;
+// Square Pharmaceuticals PLC medicine list (uploaded PDF): type|brand|strength|generic|(blank)|price (৳)
+const SEED=`Tablet|Ace|500 mg|Paracetamol||1.2
+Pediatric Drops|Ace|80 mg/ml|Paracetamol||30
+Suppository|Ace|250 mg|Paracetamol||7
+Suspension|Ace|120 mg/5 ml|Paracetamol||35
+Tablet|Ace Duo|200 mg+500 mg|Ibuprofen + Paracetamol||2.08
+Tablet|Ace Power|1000 mg|Paracetamol||2.25
+Suppository|Ace|125 mg|Paracetamol||6
+Suppository|Ace|500 mg|Paracetamol||10
+IV Infusion|Ace|10 mg/ml|Paracetamol||150
+Tablet|Ace Plus|500 mg+65 mg|Paracetamol + Caffeine||2.51
+Tablet (XR)|Ace XR|665 mg|Paracetamol||2
+Inhalation Capsule|Aclitol|400 mcg+12 mcg|Aclidinium Bromide + Formoterol Fumarate||25
+Syrup|Adovas|Herbal cough syrup|Vasakarista||70
+Tablet|Adiva|600 mg|Efavirenz||200.7
+Syrup|Adryl|10 mg/5 ml|Diphenhydramine Hydrochloride||45
+Tablet|Adsalt|300 mg|Sodium Chloride (Tablet)||3
+Vaginal Tablet|Afun VT|200 mg|Clotrimazole (Vaginal tablet)||20.06
+Injection|Akicin|100 mg/2 ml|Amikacin||16.05
+Eye Drops|Alacot DS|0.2%|Olopatadine Hydrochloride||175
+Tablet|Alarid|1 mg|Ketotifen Fumarate (Oral)||3
+Eye Drops|Alarid|0.025%|Ketotifen Fumarate (Ophthalmic)||100.3
+Syrup|Alatrol|5 mg/5 ml|Cetirizine Hydrochloride||35
+Cream / Topical|Afun|1%|Clotrimazole (Topical)||35.11
+Injection|Amikin|500 mg/2 ml|Amikacin||48.14
+Eye Drops|Alacot|0.1%|Olopatadine Hydrochloride||110.34
+Eye Drops|Alacot Max|0.7%|Olopatadine Hydrochloride||245
+Syrup|Alarid|1 mg/5 ml|Ketotifen Fumarate (Oral)||75
+Tablet|Alatrol|10 mg|Cetirizine Hydrochloride||3.01
+Pediatric Drops|Alatrol|2.5 mg/ml|Cetirizine Hydrochloride||28
+Tablet|Alenvir|25 mg|Tenofovir Alafenamide||90
+Lotion / Topical|Alice|0.5%|Ivermectin (Topical)||130
+Capsule|Alfane|300 mg|Alpha-Lipoic Acid||15
+Tablet|Alice|12 mg|Ivermectin (Tablet)||20
+Tablet|Alice|6 mg|Ivermectin (Tablet)||10
+Tablet|Almex|400 mg|Albendazole||5.02
+Syrup|Ambrox|15 mg/5 ml|Ambroxol Hydrochloride||50
+Capsule (SR)|Ambrox SR|75 mg|Ambroxol Hydrochloride||5.5
+Suspension|Almex|200 mg/5 ml|Albendazole||23
+Tablet|Ambrisan|5 mg|Ambrisentan||40.13
+Pediatric Drops|Ambrox|6 mg/ml|Ambroxol Hydrochloride||40
+Syrup|AmCivit|(3.03 ml+0.12 gm)/5 ml|Emblica officinalis + Piper longum||60
+Tablet|Amenavir|200 mg|Amenamevir||150
+Tablet|Amodis|400 mg|Metronidazole||1.7
+Suspension|Amodis|200 mg/5 ml|Metronidazole||35
+Capsule|Anadol|50 mg|Tramadol Hydrochloride||8.07
+Injection|Anadol|100 mg/2 ml|Tramadol Hydrochloride||20.14
+Tablet|Anadol Plus|325 mg+37.5 mg|Paracetamol + Tramadol Hydrochloride||8.03
+Capsule (SR)|Anadol SR|100 mg|Tramadol Hydrochloride||17
+Tablet|Anclog Plus|75 mg+75 mg|Clopidogrel + Aspirin||12.03
+Injection|Anespine|0.5%+8%|Bupivacaine Hydrochloride + Dextrose||30.2
+Tablet|Angilock|50 mg|Losartan Potassium||10
+Tablet|Angilock Plus|100 mg+25 mg|Losartan Potassium + Hydrochlorothiazide||12.03
+Suppository|Anadol|100 mg|Tramadol Hydrochloride||20
+Tablet (IR)|Anadol R|50 mg|Tramadol Hydrochloride||11.01
+Tablet|Anclog|75 mg|Clopidogrel Bisulphate||12.03
+Rectal Solution|Anema|(19 gm+7 gm)/118 ml|Monobasic Sodium Phosphate + Dibasic Sodium Phosphate||250
+Tablet|Angilock|100 mg|Losartan Potassium||12.03
+Tablet|Angilock|25 mg|Losartan Potassium||5
+Tablet|Angilock Plus|100 mg+12.5 mg|Losartan Potassium + Hydrochlorothiazide||12
+Tablet|Angilock Plus|50 mg+12.5 mg|Losartan Potassium + Hydrochlorothiazide||10
+Suspension|Anleptic|100 mg/5 ml|Carbamazepine||300.9
+Tablet|Anoxa|10 mg|Oxazepam||3.52
+Sublingual Spray|Anril|400 mcg/spray|Nitroglycerin||270
+Tablet (MR)|Angivent MR|35 mg|Trimetazidine Dihydrochloride||10
+Tablet (CR)|Anleptic CR|200 mg|Carbamazepine||6.02
+Injection|Anril|50 mg/10 ml|Nitroglycerin (IV Infusion)||75.5
+Tablet (SR)|Anril SR|2.6 mg|Nitroglycerin||5
+Injection (Vial)|Ansulin|30%+70% in 40 IU/ml|Regular Insulin Human + Isophane Insulin Human||195
+Injection (Vial)|Ansulin|30%+70% in 100 IU/ml|Regular Insulin Human + Isophane Insulin Human||415
+Injection (Vial)|Ansulin|50%+50% in 100 IU/ml|Regular Insulin Human + Isophane Insulin Human||415
+Injection (Vial)|Ansulin N|100 IU/ml|Insulin Human [rDNA]||415
+Injection (Vial)|Ansulin R|40 IU/ml|Insulin Human [rDNA]||195
+Medical Device|AnsuPen|Insulin device & needle|Insulin device & needle||700
+Nasal Drops|Antazol|0.05%|Xylometazoline Hydrochloride||18
+Nasal Spray|Antazol Plus|(2.6 mg+0.0325 mg)/spray|Sodium Cromoglicate + Xylometazoline Hydrochloride||130
+Syrup|Antista|2 mg/5 ml|Chlorpheniramine Maleate||30
+Tablet|Anzitor|10 mg|Atorvastatin Calcium||12
+Injection (Vial)|Ansulin R|100 IU/ml|Insulin Human [rDNA]||415
+Medical Device|AnsuPen Twist|Insulin device & needle|Insulin device & needle||700
+Nasal Drops|Antazol|0.1%|Xylometazoline Hydrochloride||20
+Gel / Topical|Antiscar|100 mg+50 IU+10 mg|Allium cepa + Heparin + Allantoin||300
+Tablet|Anzitor|20 mg|Atorvastatin Calcium||20
+Tablet|Anzitor|40 mg|Atorvastatin Calcium||28
+Tablet|Anzitor EZ|20 mg+10 mg|Atorvastatin + Ezetimibe||22
+Tablet|Anzitor EZ|10 mg+10 mg|Atorvastatin + Ezetimibe||14
+Oral Paste|Apsol|5%|Amlexanox||80
+Oral Solution|Ariprex|5 mg/5 ml|Aripiprazole||75
+Tablet|Ariprex|2 mg|Aripiprazole||2
+Tablet|Ariprex|10 mg|Aripiprazole||5
+Capsule|Arubin|500 mg|Nabayas Louha Herbal Haematinic||4
+Chewable Tablet|Asynta|500 mg+100 mg|Sodium Alginate + Potassium Bicarbonate||5
+Suspension|Asynta Max|(500 mg+213 mg+325 mg)/10 ml|Sodium Alginate + Sodium Bicarbonate + Calcium Carbonate||300
+Injection (Vial)|Avitaz|(2 gm+0.5 gm)/vial|Ceftazidime + Avibactam||2800
+Tablet (Combipack)|Axlovir|150 mg+100 mg|Nirmatrelvir + Ritonavir||1600
+Syrup|B-50 Forte|(5 mg+2 mg+2 mg+20 mg)/5 ml|Vitamin B complex||62.19
+Suspension|Asynta|(500 mg+100 mg)/5 ml|Sodium Alginate + Potassium Bicarbonate||150
+Chewable Tablet|Asynta Max|250 mg+106.5 mg+187.5 mg|Sodium Alginate + Sodium Bicarbonate + Calcium Carbonate||6
+Nasal Spray|Avaspray|27.5 mcg/spray|Fluticasone Furoate||275
+Tablet|Avudin|150 mg+300 mg|Lamivudine + Zidovudine||45
+Capsule|B-50 Forte|5 mg+2 mg+2 mg+20 mg|Vitamin B complex||1.75
+Injection|B-50 Forte|(50 mg+5.48 mg+100 mg+5 mg+10 mg)/2 ml|Vitamin B complex||10.03
+Syrup|B-9|2.5 mg/5 ml|Folic Acid||50
+Ointment / Topical|Bactrocin|2% w/w|Mupirocin||150
+Tablet|Baritor|2 mg|Baricitinib||25
+Inhaler|Beclomin|100 mcg/puff|Beclomethasone Dipropionate (Inhaler)||270.82
+Mouthwash|Benostar|0.15%|Benzydamine Hydrochloride||200
+Ointment / Topical|Betaburn|0.25% w/w|B-Sitosterol||100
+Cream / Topical|Betameson|0.05%|Betamethasone Dipropionate||45
+Cream / Topical|Betameson-N|0.1%+0.5%|Betamethasone + Neomycin Sulphate (Topical)||35
+Capsule|BetriXa|80 mg|Betrixaban||115
+Capsule|Bacilax|9 billion|Probiotic Combination [9 Billion]||25
+Tablet|Barif|40 mg|Febuxostat||12.03
+Inhaler|Beclomin|250 mcg/puff|Beclomethasone Dipropionate (Inhaler)||320.96
+Nasal Spray|Becospray|50 mcg/spray|Beclomethasone Dipropionate (Nasal Spray)||146
+Injection (Vial)|Benzapen|12 lac units/vial|Benzathine Benzylpenicillin||30
+Ointment / Topical|Betameson|0.05%|Betamethasone Dipropionate||45
+Cream / Topical|Betameson-CL|0.05%+1%|Betamethasone + Clotrimazole||45
+Capsule|BetriXa|40 mg|Betrixaban||65
+Inhaler|Bevicort|(5.5 mcg+10.4 mcg+182 mcg)/actuation|Formoterol Fumarate + Glycopyrrolate + Budesonide||1200
+Inhaler|Beviprex|(9 mcg+4.8 mcg)/puff|Glycopyrronium Bromide + Formoterol Fumarate||450
+Tablet|Bicozin|Tablet|Vitamin B Complex + Zinc||3
+Syrup|Bicozin|Syrup|Vitamin B Complex + Zinc||60
+Syrup|Bicozin-I||Iron Polymaltose Complex + Vitamin B Complex + Zinc||60
+Oral Solution|Bilista|12.5 mg/5 ml|Bilastine||100
+Tablet|Bilista|20 mg|Bilastine||15
+Tablet|Bilista Kids|10 mg|Bilastine||15
+Tablet|Bioprem|5000 mcg|Biotin||40
+Tablet|Bioprem|2500 mcg|Biotin||30
+Tablet|Bisocam|2.5 mg+5 mg|Bisoprolol Fumarate + Amlodipine Besilate||8
+Tablet|Bisocor|2.5 mg|Bisoprolol Fumarate||7
+Eye Drops|Bimator|0.03%+0.5%|Bimatoprost + Timolol||500
+Tablet|Bioprem|10000 mcg|Biotin||50
+Tablet|Bioprem|1000 mcg|Biotin||20
+Tablet|Bisocor|5 mg|Bisoprolol Fumarate||11.5
+Tablet|Bisocor Plus|2.5 mg+6.25 mg|Bisoprolol Fumarate + Hydrochlorothiazide||6.02
+Tablet|Bisocor Plus|5 mg+6.25 mg|Bisoprolol Fumarate + Hydrochlorothiazide||10.03
+Tablet|Bixi|5 mg|Elobixibat||25
+Capsule|Bolardi|250 mg (5 billion CFU)|Saccharomyces Boulardii||10
+IV Infusion|Bonizol|5 mg/100 ml|Zoledronic Acid [For osteoporosis]||6000
+Suspension|Brofex TS|30 mg/5 ml|Dextromethorphan Polistirex||100
+Inhalation Capsule|Bufocort|200 mcg+6 mcg|Budesonide + Formoterol Fumarate||10
+Capsule|Bolardi|500 mg (10 billion CFU)|Saccharomyces Boulardii||16
+Syrup|Brofex|10 mg/5 ml|Dextromethorphan Hydrobromide||40.13
+Tablet|Bromolac|2.5 mg|Bromocriptine Mesylate||12.03
+Inhaler|Bufocort|(160 mcg+4.5 mcg)/puff|Budesonide + Formoterol Fumarate||850
+Inhalation Capsule|Bufocort|400 mcg+12 mcg|Budesonide + Formoterol Fumarate||14.05
+Cream / Topical|Burna|1%|Silver Sulfadiazine||60
+Tablet (ER)|Bupro-D|45 mg+105 mg|Dextromethorphan + Bupropion||15
+Tablet|Caberol|0.5 mg|Cabergoline||80
+Tablet|Calbo|500 mg|Calcium Carbonate||5
+Chewable Tablet|Calbo Jr|250 mg|Calcium Carbonate||4
+Tablet|Calbo-D|500 mg+200 IU|Conventional Calcium + Vitamin D3||8
+Tablet|Calboplex||Calcium + Vitamin D3 + Multimineral||6
+Tablet|Calboral-DX|600 mg+400 IU|Coral Calcium + Vitamin D3||16
+Tablet|Calbostar|400 mg|Calcium Orotate||8.03
+Soft Capsule|Calcitrol|0.25 mcg|Calcitriol||10.03
+Tablet|Caloprid|1 mg|Prucalopride Succinate||14
+Tablet|Camlodin Plus|5 mg+25 mg|Amlodipine Besilate + Atenolol||6
+Tablet|Camlopril|10 mg+20 mg|Amlodipine Besilate + Benazepril Hydrochloride||10.07
+Tablet|Camlopril|5 mg+10 mg|Amlodipine Besilate + Benazepril Hydrochloride||6.04
+Effervescent Tablet|Calbo Forte|1000 mg+327 mg+500 mg+400 IU|Calcium Lactate Gluconate + Calcium Carbonate + Vitamin C + Vitamin D3||8.06
+Effervescent Tablet|Calbo-C|1000 mg+327 mg+500 mg|Calcium Lactate Gluconate + Calcium Carbonate + Vitamin C||13
+Effervescent Tablet|Calbo-D Vita|1358.196 mg+600 mg+400 IU|Calcium Lactate Gluconate + Calcium Carbonate + Vitamin D3||15.05
+Tablet|Calboral-D|500 mg+200 IU|Coral Calcium + Vitamin D3||11
+Tablet|Calbostar|740 mg|Calcium Orotate||12.03
+Tablet|Calbotol|1200 mg+0.25 mcg|Calcium Citrate + Calcitriol||13
+Tablet|Caloprid|2 mg|Prucalopride Succinate||24
+Tablet|Camlodin|5 mg|Amlodipine Besilate||5.02
+Tablet|Camlodin Plus|5 mg+50 mg|Amlodipine Besilate + Atenolol||8
+Tablet|Camlopril|5 mg+20 mg|Amlodipine Besilate + Benazepril Hydrochloride||8.06
+Tablet|Camlopril|2.5 mg+10 mg|Amlodipine Besilate + Benazepril Hydrochloride||4.03
+Tablet|Camlosart|5 mg+40 mg|Amlodipine Besilate + Olmesartan Medoxomil||20
+Tablet|Canaglif|100 mg|Canagliflozin Hemihydrate||40
+Nasal Spray|Carazol|0.06 mg/metered spray|Iota-Carrageenan||200
+Tablet|Carbizol|5 mg|Carbimazole||4
+Tablet|Camlosart|5 mg+20 mg|Amlodipine Besilate + Olmesartan Medoxomil||12
+Oral Drops|Candex|100000 Unit/ml|Nystatin||46.84
+Tablet|Carbizol|10 mg|Carbimazole||5
+Syrup|Caripa|275 mg/5 ml|Carica Papaya Leaf Extract||450
+Tablet|Caroba|500 mg|D-chiro-inositol||85
+Tablet|Carva|75 mg|Aspirin||0.8
+Tablet|Cavir|0.5 mg|Entecavir Monohydrate||48.14
+Tablet|Cavir|1 mg|Entecavir Monohydrate||90.27
+Syrup|Ceevit|100 mg/5 ml|Vitamin C [Ascorbic acid]||40
+Chewable Tablet|Ceevit|250 mg|Vitamin C [Ascorbic acid]||1.9
+Effervescent Tablet|Ceevit Forte|1000 mg|Vitamin C [Ascorbic acid]||18.4
+Suspension|Cef-3|100 mg/5 ml|Cefixime Trihydrate||145
+Chewable Tablet|Ceevit DS|500 mg|Vitamin C [Ascorbic acid]||3.5
+Capsule|Cef-3|200 mg|Cefixime Trihydrate||45
+Pediatric Drops|Cef-3|25 mg/ml|Cefixime Trihydrate||100.3
+Capsule|Cef-3 DS|400 mg|Cefixime Trihydrate||60
+Pediatric Drops|Cef-3 Max|100 mg/ml|Cefixime Trihydrate||250
+Injection (Vial)|Cefopen|1 gm/vial|Cefoperazone Sodium||250
+Suspension|Cef-3 Forte|200 mg/5 ml|Cefixime Trihydrate||350
+Injection (Vial)|Cefamil-5|600 mg/vial|Ceftaroline Fosamil||4500
+Injection (Vial)|Cefopen|2 gm/vial|Cefoperazone Sodium||400
+Tablet|Cefotil|500 mg|Cefuroxime Axetil||45.29
+Suspension|Cefotil|125 mg/5 ml|Cefuroxime Axetil||240
+Tablet|Cefotil|250 mg|Cefuroxime Axetil||25.17
+Injection (Vial)|Cefotil|750 mg/vial|Cefuroxime Axetil||132
+Injection (Vial)|Cefotil|1.5 gm/vial|Cefuroxime Axetil||250
+Suspension|Cefotil Plus|(125 mg+31.25 mg)/5 ml|Cefuroxime Axetil + Clavulanic Acid||285
+Tablet|Cefotil Plus|500 mg+125 mg|Cefuroxime Axetil + Clavulanic Acid||60
+Tablet|Cefotil Plus|250 mg+62.5 mg|Cefuroxime Axetil + Clavulanic Acid||35
+Capsule|Ceftiben|400 mg|Ceftibuten Dihydrate||120
+Suspension|Ceftiben|90 mg/5 ml|Ceftibuten Dihydrate||480
+Injection (Vial)|Ceftron|250 mg/vial|Ceftriaxone Sodium||130
+Injection (Vial)|Ceftron|500 mg/vial|Ceftriaxone Sodium||200
+Injection (Vial)|Ceftron|1 gm/vial|Ceftriaxone Sodium||280
+Injection (Vial)|Ceftron|2 gm/vial|Ceftriaxone Sodium||400
+Tablet|Cerevas|5 mg|Vinpocetine||4.03
+IV Infusion|Cholenak|0.5%+0.1%+0.1% +0.393%|Sodium Chloride + Potassium Chloride + Sodium Acetate||70.15
+Tablet|Cilosta|100 mg|Cilostazol||12.09
+Tablet|Cinaron|15 mg|Cinnarizine||1.35
+Eye/Ear Drops|Ciprocin|0.3%|Ciprofloxacin (Ophthalmic)||50
+Tablet|Ciprocin|750 mg|Ciprofloxacin||18.12
+Tablet|Ciprocin|250 mg|Ciprofloxacin||8.56
+Tablet|Citivas|500 mg|Citicoline Sodium||50
+Gel / Topical|Clinface|1.2%+0.025%|Clindamycin + Tretinoin||151.02
+Gel / Topical|Clofenac|1% w/w|Diclofenac Sodium||40
+Suppository|Clofenac|25 mg|Diclofenac Sodium||16
+Dispersible Tablet|Clofenac DT|46.5 mg|Diclofenac Sodium||4.02
+Tablet (SR)|Clofenac SR|100 mg|Diclofenac Sodium||5
+Shampoo|Clopirox|1%|Ciclopirox Olamine (Shampoo)||350
+Tablet|Cinaron Plus|20 mg+40 mg|Cinnarizine + Dimenhydrinate||2
+Suspension|Ciprocin|250 mg/5 ml|Ciprofloxacin||100.3
+Tablet|Ciprocin|500 mg|Ciprofloxacin||15.05
+IV Infusion|Ciprocin|200 mg/100 ml|Ciprofloxacin||146
+Capsule|Climycin|300 mg|Clindamycin||18
+Tablet|Clofenac|50 mg|Diclofenac Sodium||2
+Suppository|Clofenac|50 mg|Diclofenac Sodium||20
+Suppository|Clofenac|12.5 mg|Diclofenac Sodium||12
+Injection|Clofenac Plus|(75 mg+20 mg)/2 ml|Diclofenac Sodium + Lidocaine Hydrochloride||15.1
+Cream / Topical|Clopirox|1%|Ciclopirox Olamine (Cream)||110
+Injection (PFS)|Clotinex|4000 Anti-Xa IU/0.4 ml|Enoxaparin Sodium||451.36
+Injection (PFS)|Clotinex|6000 Anti-Xa IU/0.6 ml|Enoxaparin Sodium||576.73
+Syrup|Colicon|10 mg/5 ml|Dicycloverine Hydrochloride||40
+Soft Capsule|Colmint|187 mg/0.2 ml|Peppermint Oil||6
+Tablet|Comet|850 mg|Metformin Hydrochloride||6.02
+Tablet|Colicon|10 mg|Dicycloverine Hydrochloride||2.01
+Tablet|Colimax|0.6 mg|Colchicine||6
+Cream / Topical|Combicid|0.05%+0.75%+2 %+1%|Clobetasol Propionate + Ofloxacin + Ornidazole + Terbinafine||180
+Tablet|Comet|500 mg|Metformin Hydrochloride||5
+Tablet (XR)|Comet XR|1000 mg|Metformin Hydrochloride||9.03
+Tablet|Comprid|80 mg|Gliclazide||8
+Tablet (XR)|Comet XR|500 mg|Metformin Hydrochloride||6.02
+Tablet (XR)|Comprid XR|60 mg|Gliclazide||12
+Tablet (XR)|Comprid XR|30 mg|Gliclazide||7
+Tablet|Contilex TS|750 mg+600 mg|Glucosamine Sulfate + Chondroitin||20
+Medical Device|Contour Plus Meter||Blood glucose monitoring device||1650
+Test Strips|Contour Plus Strips||Blood glucose monitoring device||27.8
+Test Strips|Contour TS Strips||Blood glucose monitoring device||26.6
+Tablet|Cotrim|400 mg+80 mg|Sulphamethoxazole + Trimethoprim||1.49
+Tablet|Contilex|250 mg+200 mg|Glucosamine Sulfate + Chondroitin||8.06
+Medical Device|Contour Plus Elite Meter||Blood glucose monitoring device||2250
+Medical Device|Contour Plus One Meter||Blood glucose monitoring device||2000
+Medical Device|Contour TS Meter||Blood glucose monitoring device||1300
+Suspension|Cotrim|(200 mg+40 mg)/5 ml|Sulphamethoxazole + Trimethoprim||21.64
+Tablet|Cotrim DS|800 mg+160 mg|Sulphamethoxazole + Trimethoprim||2.66
+Tablet|Cozycol|800 mg|Mesalazine [5- aminosalicylic acid]||20
+Capsule|D-Balance|2000 IU|Cholecalciferol [Vitamin D3]||4
+Oral Drops|D-Balance|2000 IU/ml|Cholecalciferol [Vitamin D3]||150
+Capsule|D-Balance|50000 IU|Cholecalciferol [Vitamin D3]||40
+Capsule|D-Balance|40000 IU|Cholecalciferol [Vitamin D3]||35
+Capsule|D-Balance|20000 IU|Cholecalciferol [Vitamin D3]||20
+Injection (PFS)|Darboren|60 mcg/0.3 ml|Darbepoetin Alfa||5500
+Injection (PFS)|Darboren|40 mcg/0.4 ml|Darbepoetin Alfa||4500
+Tablet|Daizy|2 mg|Dienogest||50
+Injection (PFS)|Darboren|25 mcg/0.42 ml|Darbepoetin Alfa||2800
+Ointment / Topical|De-Rash|40%|Zinc Oxide [For diaper rash]||50.35
+Ointment / Topical|De-Rash Plus|0.25%+15%+81.3 5%|Miconazole Nitrate + Zinc Oxide + White Soft Paraffin||135
+Tablet|Deflacort|6 mg|Deflazacort||9.5
+Tablet|Deflacort|18 mg|Deflazacort||20
+Suspension|Deflacort|6 mg/5 ml|Deflazacort||200
+Tablet|Deprex|10 mg|Olanzapine||4.5
+Cream / Topical|Dermasol|0.05%|Clobetasol Propionate||70.48
+Ointment / Topical|Dermasol Plus|0.05%+3%|Clobetasol Propionate + Salicylic Acid||150
+Cream / Topical|Dermasol-N|0.05%+0.5%+2%|Clobetasol Propionate + Neomycin Sulphate + Nystatin||100
+Injection|Dexonex|5 mg/ml|Dexamethasone||20.06
+Eye/Ear Drops|Dexonex-C|0.1%+0.5%|Dexamethasone + Chloramphenicol||70.21
+Injection|Defiron|100 mg/5 ml|Iron Sucrose||350
+Tablet|Deflacort|24 mg|Deflazacort||30
+Tablet|Deflacort|30 mg|Deflazacort||32
+Tablet|Depram|25 mg|Imipramine Hydrochloride||5
+Tablet|Deprex|5 mg|Olanzapine||2.5
+Ointment / Topical|Dermasol|0.05%|Clobetasol Propionate||70.48
+Ointment / Topical|Dermasol-N|0.05%+0.5%+2%|Clobetasol Propionate + Neomycin Sulphate + Nystatin||100
+Scalp Solution|Dermasol-S|0.05%|Clobetasol Propionate||200.61
+Tablet|Dexonex|0.5 mg|Dexamethasone||0.87
+Tablet|Dibenol|5 mg|Glibenclamide||0.35
+Capsule (DR)|Diliner DR|60 mg|Duloxetine Hydrochloride||16.11
+Capsule (DR)|Diliner DR|20 mg|Duloxetine Hydrochloride||8
+Capsule (DR)|Diliner DR|30 mg|Duloxetine Hydrochloride||10.07
+Tablet (SR)|Diltizem SR|90 mg|Diltiazem Hydrochloride||5.63
+Tablet|Dizmo|50 mg|Itopride Hydrochloride||5
+Capsule|DK 4000|4000 IU+100 mcg|Vitamin D3 + Vitamin K2||10
+Tablet|Docofin|400 mg|Doxophylline||10
+Injection|Dormitol|15 mg/3 ml|Midazolam||120.37
+Tablet|Dotfix|1 mg|Dotinurad||12
+Tablet|Duafe|0.45 mg+20 mg|Conjugated Estrogen + Bazedoxifene||80
+Inhaler|Dulamet|(100 mcg+5 mcg)/puff|Mometasone Furoate + Formoterol Fumarate||695
+Tablet|Dumeg|500 mg|Imeglimin Hydrochloride||20
+Ointment / Topical|Dyvon|0.005% w/w|Calcipotriol Monohydrate||351.06
+Ointment / Topical|Dyvon Plus|0.05%+0.005%|Betamethasone + Calcipotriol||381.14
+Capsule|DK|400 IU+60 mcg+30 mcg|Vitamin D3 + Vitamin K1 + Vitamin K2||6
+Tablet|Docofin|200 mg|Doxophylline||7.5
+Tablet|Dormitol|7.5 mg|Midazolam||12
+Tablet|Dotfix|2 mg|Dotinurad||24
+Capsule|Doxacil|100 mg|Doxycycline Hydrochloride||2.5
+Syrup|Dubarel|Aushokarist|Saraca Indica||100
+Inhaler|Dulamet|(200 mcg+5 mcg)/puff|Mometasone Furoate + Formoterol Fumarate||895
+Emulsion|Duolax|(300 mg+1.25 ml)/5 ml|Magnesium Hydroxide + Liquid Paraffin||95.29
+Gel / Topical|Dyvon Plus|0.05%+0.005%|Betamethasone + Calcipotriol||381.14
+Tablet|Efaxim|200 mg|Rifaximin||20
+Tablet|Efaxim|550 mg|Rifaximin||45
+Tablet|Emcil|200 mg|Pivmecillinam||15.05
+Tablet|Emjard|25 mg|Empagliflozin||40
+Tablet|Emjard M|5 mg+500 mg|Empagliflozin + Metformin Hydrochloride||18
+Tablet (XR)|Emjard M XR|25 mg+1000 mg|Empagliflozin + Metformin Hydrochloride||50
+Cream / Topical|Elorim|13.9%|Eflornithine Hydrochloride||1500
+Tablet|Emjard|10 mg|Empagliflozin||25
+Tablet|Emjard M|12.5 mg+500 mg|Empagliflozin + Metformin Hydrochloride||20
+Tablet (XR)|Emjard M XR|10 mg+1000 mg|Empagliflozin + Metformin Hydrochloride||30
+Tablet (XR)|Emjard M XR|5 mg+1000 mg|Empagliflozin + Metformin Hydrochloride||25
+Lotion / Topical|Emolent|3%+8%|White Soft Paraffin + Liquid Paraffin||250
+Cream / Topical|Emolent|15%+6%|White Soft Paraffin + Liquid Paraffin||100.3
+Cream / Topical|Emolent Plus|10%+5%+5%+10 %|Light Liquid Paraffin + White Soft Paraffin + Glycerine||200
+Syrup|Enerton|Balarista|Balarista||170
+Bath Oil / Lotion|Emoli|2.5%+0.1%+0.1% +0.1%+0.1%+2.5 %|Liquid Paraffin + Benzalkonium Chloride + Chlorhexidine + Isopropyl Myristate||240
+Suspension|Entacyd Plus|(200 mg+400 mg+30 mg)/5 ml|Aluminium Hydroxide + Magnesium Hydroxide + Simethicone||90
+Tablet|Epitra|0.5 mg|Clonazepam||4
+Suspension|Entacyd|(175 mg+225 mg)/5 ml|Aluminium Hydroxide + Magnesium Hydroxide||64.4
+Chewable Tablet|Entacyd Plus|400 mg+400 mg+30 mg|Aluminium Hydroxide + Magnesium Hydroxide + Simethicone||2.5
+Tablet|Epitra|1 mg|Clonazepam||7
+Tablet|Epitra|2 mg|Clonazepam||12.5
+Injection (PFS)|Eporen|5000 IU|Erythropoietin Alfa||2106.32
+Soft Capsule|Eprim Plus|1000 mg|Evening primrose oil||15
+Capsule|Eredex|5.4 mg|Yohimbine Hydrochloride||30
+Injection (PFS)|Eporen|3000 IU|Erythropoietin Alfa||1454.37
+Soft Capsule|Eprim|500 mg|Evening primrose oil||10
+Cream / Topical|Equra|10% w/w|Urea (10%)||30.2
+Suppository|Erian|5 mg+5 mg+10 mg+10 mg|Cinchocaine + Hydrocortisone + Framycetin + Esculin||7
+Topical Lotion|Eromycin|3% W/V|Erythromycin (Lotion)||120.37
+Tablet|Eromycin DS|500 mg|Erythromycin (Oral)||10.35
+Ointment / Topical|Erian|(5 mg+5 mg+10.5 mg+10 mg)/gm|Cinchocaine + Hydrocortisone + Framycetin + Esculin||85
+Pediatric Drops|Eromycin|200 mg/5 ml|Erythromycin (Oral)||75
+Suspension|Eromycin|125 mg/5 ml|Erythromycin (Oral)||84.76
+Tablet|Esloric|100 mg|Allopurinol||4.03
+Tablet|Esloric|300 mg|Allopurinol||8.3
+Soft Capsule|Evit|400 mg|Vitamin E [Alpha Tocopherol Acetate]||10
+Soft Capsule|Evit|200 mg|Vitamin E [Alpha Tocopherol Acetate]||6
+Capsule|Eyevi|60 mg+30 mg+6 mg+2 mg+15 mg|Vitamin C + Vitamin E + Lutein + Copper + Zinc||10
+Cream / Topical|Ezex|0.05%|Clobetasone Butyrate||75.51
+Ointment / Topical|Ezex|0.05%|Clobetasone Butyrate||75.51
+Tablet|Facticin|320 mg|Gemifloxacin||65.19
+Tablet|Famotack|40 mg|Famotidine||5
+Tablet|Favinil|200 mg|Favipiravir||200
+Vaginal Cream|Femastin|Vaginal|Estriol (Vaginal)||1000
+Capsule|Femotol|30 mg|Ferric Maltol||11
+Tablet|Feoza|45 mg|Fezolinetant||95
+Suspension|Famotack|40 mg/5 ml|Famotidine||55
+Tablet|Famotack|20 mg|Famotidine||3
+Tablet|Femastin|1 mg|Estriol (Oral)||8.03
+Capsule|Femony||Combination of five natural herbs||15
+Vaginal Tablet|Fentizol VT|600 mg|Fenticonazole Nitrate||120
+Tablet|Fexo|60 mg|Fexofenadine Hydrochloride||4
+Tablet|Fexo|120 mg|Fexofenadine Hydrochloride||7
+Tablet|Fexo|180 mg|Fexofenadine Hydrochloride||12
+Tablet|Filwel Gold||Multivitamin & Multimineral [A-Z gold preparation]||12
+Tablet|Filwel Silver||Multivitamin & Multimineral [A-Z silver preparation]||12
+Suspension|Fexo|30 mg/5 ml|Fexofenadine Hydrochloride||55
+Tablet|Filfresh|3 mg|Melatonin||3.01
+Syrup|Filwel Kids||Multivitamin + Cod Liver Oil||100
+Tablet|Filwel Teen Him||Multivitamin & Multimineral [A-Z teen boys preparation]||0
+Tablet|Filwel Teen Her||Multivitamin & Multimineral [A-Z teen girls preparation]||0
+Tablet|FinFit|10 mg|Finerenone||65
+Capsule|Fitvit|300 mg+50 mg+50 mg+50 mg|Apple Vinegar + Garcinia cambogia + Ginger Root + Cayenne Pepper||15
+Pediatric Drops|Flacol|67 mg/ml|Simethicone||0
+Chewable Tablet|Flacol|40 mg|Simethicone||3
+Tablet|Flamfix|500 mg|Nabumetone||15
+Tablet|Flamfix|750 mg|Nabumetone||22
+Capsule|Flemo Max|20 mg+35 mg+200 mg+50 mg+50 mg|Undenatured Type II Collagen + Hyaluronic Acid + Methylsulfonylmethane + Turmeric + Boswellia serrata||35
+Capsule|Flemo|40 mg|Undenatured Type II Collagen||30
+Capsule|Flemo Plus|40 mg+150 mg+120 mg|Undenatured Type II Collagen + Glucosamine Hydrochloride + Chondroitin Sulfate||35
+Tablet|Flexi|100 mg|Aceclofenac||7
+Tablet (SR)|Flexi SR|200 mg|Aceclofenac||8
+Tablet|Flexilax|5 mg|Baclofen||5.5
+Tablet|Fliban|100 mg|Flibanserin||45
+Tablet|Flexilax|10 mg|Baclofen||10
+Nasal Spray|Flonasin|(137 mcg+50 mcg)/spray|Azelastine Hydrochloride + Fluticasone Propionate||320
+Nasal Spray|Flonaspray|50 mcg/spray|Fluticasone Propionate (Nasal Spray)||251.5
+Nasal Spray|Flonaspray Max|93 mcg/spray|Fluticasone Propionate (Nasal Spray)||300
+Capsule|Flugal|200 mg|Fluconazole||25.17
+Capsule|Flugal|50 mg|Fluconazole||8.07
+IV Infusion|Flugal|200 mg/100 ml|Fluconazole||200
+Tablet|Flurizin|10 mg|Flunarizine||7
+Tablet|Folita|5 mg|Folinic Acid||7
+Capsule|Flugal|150 mg|Fluconazole||22.14
+Suspension|Flugal|50 mg/5 ml|Fluconazole||78.53
+Tablet|Flurizin|5 mg|Flunarizine||4
+Capsule|Fodexil|500 mg|Cefadroxil Monohydrate||18
+Gel / Topical|Fona|0.1%|Adapalene||60.4
+Gel / Topical|Fona|0.3%|Adapalene||80.55
+Gel / Topical|Fona Plus|0.1%+2.5%|Adapalene + Benzoyl peroxide||160.48
+Injection (PFS)|Fonidel|2.5 mg/0.5 ml|Fondaparinux Sodium||800
+Powder / Sachet|Fosfomax|3 gm/sachet|Fosfomycin Trometamol||350
+Tablet|Frabex|500 mg|Tranexamic Acid||23
+Injection (Vial)|Fosfomax|4 gm/vial|Fosfomycin Sodium||1200
+Injection|Frabex|500 mg/5 ml|Tranexamic Acid||65
+Nasal Inhaler Stick|Freezy|(122.70 mg+415.40 mg+415.40 mg)/gm|Methyl Salicylate + Menthol + Camphor||80
+Cream / Topical|Fungidal|2% w/w|Miconazole Nitrate||50
+Cream / Topical|Fungidal-HC|2%+1%|Miconazole Nitrate + Hydrocortisone||55
+Injection|Fusid|20 mg/2 ml|Furosemide||9
+Tablet|Fusid|40 mg|Furosemide||1
+Tablet|Fusid Plus|20 mg+50 mg|Furosemide + Spironolactone||8.03
+Cream / Topical|Fusitop-HC|2%+1%|Fusidic acid + Hydrocortisone||160
+Tablet|G-Calbo DX|600 mg+400 IU|Algae Calcium + Vitamin D3||15
+Tablet|Fusid Plus|40 mg+50 mg|Furosemide + Spironolactone||10.03
+Tablet|G-Calbo|500 mg+200 IU|Algae Calcium + Vitamin D3||11
+Tablet|Gabastar|100 mg|Gabapentin||6.04
+Tablet|Gabastar|300 mg|Gabapentin||16.11
+Tablet|Gefapix|45 mg|Gefapixant Citrate||35
+Oral Gel|Gelora|2% w/w|Miconazole Nitrate||70
+Eye/Ear Drops|Genacyn|0.3%|Gentamicin Sulfate (Ophthalmic)||32.12
+Antiseptic Solution|Germisol|0.5%+70%|Chlorhexidine Gluconate + Isopropyl alcohol||40
+Injection (Vial)|Gigabac|4.5 MIU (150 mg)|Colistimethate Sodium||1000
+Capsule|Giloba|120 mg|Ginkgo Biloba||20
+Capsule|Gimery|135 mg+5.7 mg+50 mg|Bacopa monnieri + Ginkgo biloba + Lecithin||25
+Lubricating Gel|Gleazy|(1 gm+1.3 gm)/50 gm|Hydroxyethyl Cellulose + Glycerin||175
+Tablet|Glympa|25 mg+5 mg|Empagliflozin + Linagliptin||40
+Suppository|Glysup|1 gm|Glycerin||3
+Suppository|Glysup|4 gm|Glycerin||4
+Soft Capsule|Garlin|10 mg|Garlic Oil||6
+Soft Capsule|Gelaseed|1000 mg|Flaxseed oil [Linum Usitatissimum]||7
+Ointment / Topical|Genacyn|0.1%|Gentamicin Sulfate (Topical)||12.09
+Topical Gel|Germicord|7.1%|Chlorhexidine Gluconate [7.1%]||30
+Tablet|Geston|5 mg|Allylestrenol||7
+Injection (Vial)|Gigabac|1 MIU (34 mg)|Colistimethate Sodium||400
+Capsule|Giloba|60 mg|Ginkgo Biloba||15
+Capsule|Gintex|500 mg|Panax Ginseng||12
+Inhalation Solution|Glycovent|25 mcg/ml|Glycopyrronium Bromide (Respirator Solution)||30
+Tablet|Glympa|10 mg+5 mg|Empagliflozin + Linagliptin||30
+Suppository|Glysup|2 gm|Glycerin||5
+Suppository|Glysup|2.30 gm|Glycerin||5.02
+Injection (PFS)|Grastim|300 mcg/0.5 ml|Filgrastim||2800
+Oral Solution|GOL|(13.125 gm+350.7 mg+178.5 mg+46.6 mg)/25 ml|Polyethylene Glycol 3350 + Electrolytes||160
+Soft Capsule|Gutfix|24 mcg|Lubiprostone||40
+Soft Capsule|Gutfix|8 mcg|Lubiprostone||15
+Cream / Topical|Halobet|0.05%|Halobetasol Propionate||130
+Tablet|Hemorif|450 mg+50 mg|Diosmin + Hesperidin||4.06
+Syrup|Hemoron|27.5 mg/5 ml|Sodium Feredetate Trihydrate||100
+Dialysis Solution|Hemosol-B||Bicarbonate Component [HCO3 Hemodialysis Solution]||382
+Tablet|Heplol|150 mg|L-Ornithine L-Aspartate||15
+Tablet|Imaceva|400 mg|Imatinib Mesylate||300
+Capsule|Imotil|2 mg|Loperamide Hydrochloride||1
+Tablet|Inflagic|20 mg|Prednisolone||6.27
+IV Infusion|Infudex|10%|Dextrose||78.29
+Tablet|Intimate|20 mg|Tadalafil||60.18
+Vaginal Suppository|Gynepro||Metronidazole + Neomycin Sulphate + Polymyxin B + Nystatin||25
+Ointment / Topical|Halobet|0.05%|Halobetasol Propionate||130
+Tablet|Hemorif DS|900 mg+100 mg|Diosmin + Hesperidin||20
+Dialysis Solution|Hemosol-A||Acidic component [HCO3 Hemodialysis Solution]||481
+Tablet|Hepavir|100 mg|Lamivudine [For Chronic Hepatitis B]||25.17
+Injection|Hyponor|2 mg/2 ml|Norepinephrine Tartrate||250
+Tablet|Imaceva|100 mg|Imatinib Mesylate||100
+Tablet|Imotil Plus|2 mg+125 mg|Loperamide + Simethicone||5
+IV Infusion|Infudex|5%|Dextrose||71.3
+Tablet|Intimate|10 mg|Tadalafil||36
+Tablet|Intimate|2.5 mg|Tadalafil||10
+Tablet|Intimate|5 mg|Tadalafil||18.05
+Inhaler|Iprex|20 mcg/puff|Ipratropium Bromide||250
+Nebulizer Solution|Iprex|250 mcg/ml|Ipratropium Bromide||130.88
+Oral Solution|Iracet|500 mg/5 ml|Levetiracetam||200.61
+Injection (Cartridge/Vial)|Larsulin|100 IU/ml|Insulin Glargine||600
+Tablet|Laxyl|3 mg|Bromazepam||7
+Capsule|Lebac|500 mg|Cephradine||15.05
+Pediatric Drops|Lebac|125 mg/1.25 ml|Cephradine||65.19
+Suspension|Lebac Forte|250 mg/5 ml|Cephradine||140
+Tablet|Lerozol|2.5 mg|Letrozole||40.27
+Tablet|Levostar|1 mg|Levosalbutamol (Oral)||1
+Powder / Sachet|Laxisoft||Ishobgul, Senna, Haritaki, Sonali, Josthimodhu, Mouri||30
+Capsule|Lebac|250 mg|Cephradine||8.03
+Suspension|Lebac|125 mg/5 ml|Cephradine||95
+Injection (Vial)|Lebac|500 mg/vial|Cephradine||65.19
+Syrup|Lecor||Patrangasav||140
+Tablet|Levocar|330 mg|Levocarnitine||5.03
+Tablet|Levostar|2 mg|Levosalbutamol (Oral)||2
+Syrup|Levostar|1 mg/5 ml|Levosalbutamol (Oral)||30.1
+Tablet|Liglimet|2.5 mg+500 mg|Linagliptin + Metformin Hydrochloride||13
+Tablet (XR)|Liglimet XR|5 mg+1000 mg|Linagliptin + Metformin Hydrochloride||20
+Capsule|Lipired|200 mg|Fenofibrate||7.04
+Tablet|Livacol|10 mg|Obeticholic Acid||55
+Topical Spray|Lido|10 mg/spray|Lidocaine Hydrochloride (Spray)||300.9
+Tablet|Liglimet|2.5 mg+850 mg|Linagliptin + Metformin Hydrochloride||15
+Tablet|Linita|5 mg|Linagliptin||18
+Tablet|Livacol|5 mg|Obeticholic Acid||30
+Capsule|Livolite|200 mg|Andrographis paniculata||5
+Syrup|Livwel||Multivitamin & Multimineral [A-Z syrup preparation]||90.61
+Tablet|LNC|10 mg|Cilnidipine||7
+Eye Drops|Locular Plus|0.2%+0.5%|Brimonidine Tartrate + Timolol Maleate||110.33
+Tablet|LNC|5 mg|Cilnidipine||7
+Eye Drops|Locular|0.2%|Brimonidine Tartrate||80.55
+Tablet|Lofos|667 mg|Calcium Acetate||0
+Suspension|Loracef|125 mg/5 ml|Cefaclor Monohydrate||201
+Pediatric Drops|Loracef|125 mg/1.25 ml|Cefaclor Monohydrate||135
+Tablet|Loratin|10 mg|Loratadine||3.01
+Orally Disintegrating Tablet|Loratin Fast|10 mg|Loratadine||4
+Tablet|Lorno|4 mg|Lornoxicam||15
+Eye Drops|Lubgel|1%|Carboxymethylcellulose Sodium||300
+Cream / Topical|Lulitop|1%|Luliconazole||100
+Tablet|Luraprex|40 mg|Lurasidone Hydrochloride||35
+Tablet|Lysivin||Multivitamin + L-Lysine||4
+Suspension|Maganta Plus|(480 mg+20 mg)/5 ml|Magaldrate + Simethicone||110
+Capsule|Manli||Epimedium sagittatum, Maca Root & others||50
+Tablet Kit|Maxbon Kit|150 mg & 400 mg|Ibandronic Acid & Calcium Orotate||990
+Capsule|Maximilk||Fennel, Fenugreek, Cumin, Aniseed & Dill Powder||15
+Tablet|Lorno|8 mg|Lornoxicam||25
+Eye Drops|Lubtear|0.1%+0.3%|Dextran + Hypromellose||95
+Tablet|Lumertam|20 mg+120 mg|Artemether + Lumefantrine||20.13
+Tablet|Luraprex|20 mg|Lurasidone Hydrochloride||35
+Chewable Tablet|Maganta Plus|480 mg+20 mg|Magaldrate + Simethicone||3.01
+Tablet|Magnide|365 mg|Magnesium Oxide||5
+Tablet Kit|Maxbon|150 mg|Ibandronic Acid||510
+Injection (Vial)|Maxcef|250 mg/5 ml|Cefotaxime||75
+Injection (Vial)|Maxpime|1 gm/vial|Cefepime Hydrochloride||551.65
+Capsule (MR)|Maxrin|0.4 mg|Tamsulosin Hydrochloride||12
+Capsule|Maxrin D|0.4 mg+0.5 mg|Tamsulosin Hydrochloride + Dutasteride||20
+Tablet|Meget|160 mg|Megestrol Acetate||80
+Tablet|Melcam|15 mg|Meloxicam||4.03
+Tablet|Menoral|5 mg|Norethisterone Acetate||6.5
+Cream / Topical|Melano|0.01%+4%+0.05 %|Fluocinolone Acetonide + Hydroquinone + Tretinoin||200
+Tablet|Melixol|0.5 mg+10 mg|Flupentixol + Melitracen||5.02
+Tablet|Merison|6 mg|Betahistine Mesylate||2.01
+Nasal Spray|Metaspray|50 mcg/spray|Mometasone Furoate (Nasal Spray)||251.5
+Tablet|Methigic|2 mg|Methylprednisolone||3
+Tablet|Methigic|8 mg|Methylprednisolone||10.5
+Tablet|Methomol|500 mg|Methocarbamol||10
+Tablet|Mevin|135 mg|Mebeverine Hydrochloride||7
+Eye Drops|Mexlo|0.3%|Lomefloxacin||70.21
+Tablet|Miclofenac|75 mg+200 mcg|Diclofenac Sodium + Misoprostol||11.07
+Tablet|Migranil|1.5 mg|Pizotifen||7.04
+Tablet|Methicol|500 mcg|Mecobalamin||4.03
+Tablet|Methigic|4 mg|Methylprednisolone||5
+Tablet|Methigic|16 mg|Methylprednisolone||20.5
+Tablet|Methomol|750 mg|Methocarbamol||13
+Capsule (SR)|Mevin SR|200 mg|Mebeverine Hydrochloride||10.03
+Tablet|Miclofenac|50 mg+200 mcg|Diclofenac Sodium + Misoprostol||10.07
+Tablet|Migranil|0.5 mg|Pizotifen||3.01
+Tablet|Minibet|100 mg|Ciprofibrate||15
+Tablet (ER)|Mirader|25 mg|Mirabegron||30
+Syrup|Mirakof|7.5 mg/5 ml|Butamirate Citrate||80.24
+Pediatric Drops|Mirakof|5 mg/ml|Butamirate Citrate||50
+Tablet|Mirapro|7.5 mg|Mirtazapine||6
+Capsule|Molvir|200 mg|Molnupiravir||50
+Injection (PFS)|Montaro|2.5 mg/0.5 ml|Tirzepatide||1300
+Tablet (SR)|Mirakof SR|50 mg|Butamirate Citrate||10.07
+Tablet|Mirapro|15 mg|Mirtazapine||7
+Syrup|Monera||Brammiroshayan||100
+Injection (PFS)|Montaro|5 mg/0.5 ml|Tirzepatide||2100
+Injection (PFS)|Montaro|7.5 mg/0.5 ml|Tirzepatide||2800
+Chewable Tablet|Montene|5 mg|Montelukast Sodium||9
+Chewable Tablet|Montene|4 mg|Montelukast Sodium||7
+Tablet|Montene|10 mg|Montelukast Sodium||17.5
+Tablet|Motigut|10 mg|Domperidone Maleate||4
+Pediatric Drops|Motigut|5 mg/ml|Domperidone Maleate||25.08
+Capsule|Moxacil|500 mg|Amoxicillin Trihydrate||7.5
+Pediatric Drops|Moxacil|125 mg/1.25 ml|Amoxicillin Trihydrate||35
+Suspension|Motigut|5 mg/5 ml|Domperidone Maleate||40
+Capsule|Moxacil|250 mg|Amoxicillin Trihydrate||4
+Suspension|Moxacil|125 mg/5 ml|Amoxicillin Trihydrate||70
+Tablet|Moxaclav|875 mg+125 mg|Amoxicillin + Clavulanic Acid||45
+Injection (Vial)|Moxaclav|(1 gm+200 mg)/20 ml|Amoxicillin + Clavulanic Acid||300
+Tablet|Moxaclav|250 mg+125 mg|Amoxicillin + Clavulanic Acid||25
+Suspension|Moxaclav|(125 mg+31.25 mg)/5 ml|Amoxicillin + Clavulanic Acid||220
+Tablet|Moxaclav|500 mg+125 mg|Amoxicillin + Clavulanic Acid||32
+Suspension|Moxaclav Forte|(400 mg+57.50 mg)/5 ml|Amoxicillin + Clavulanic Acid||230
+Tablet|Multivit Plus||Multivitamin & Multimineral||2.5
+Syrup|Mucospel|4 mg/5 ml|Bromhexine Hydrochloride||40.13
+Tablet|Myonil|50 mg|Eperisone Hydrochloride||3.01
+Capsule|Nafodil|100 mg|Naftidrofuryl Oxalate||12
+Nasal Cream / Gel|Nasofix|(2.5 mg+3 mg)/gm|Phenylephrine + Chlorhexidine gluconate||250
+Suspension|Nalid|300 mg/5 ml|Nalidixic Acid||41.75
+Inhalation Solution|Nasovap|2%+10%|Menthol + Eucalyptus Oil||130
+Tablet|Naurif|1 mg|Granisetron||28.19
+Capsule|Navit|500 mg|Spirulina||12
+Ointment / Topical|Nebanol|(5 mg+250 IU)/gm|Neomycin Sulfate + Bacitracin Zinc||25
+Tablet|Nebita|2.5 mg|Nebivolol Hydrochloride||7.02
+Tablet|Nebita Plus|5 mg+12.5 mg|Nebivolol + Hydrochlorothiazide||12
+Injection|Naurif|1 mg/ml|Granisetron||48.33
+Ointment / Topical|Nebanol|(5 mg+500 IU)/gm|Neomycin Sulfate + Bacitracin Zinc||44.2
+Ointment / Topical|Nebanol Plus|(3.5 mg+400 IU+5000 IU)/gm|Neomycin Sulfate + Bacitracin Zinc + Polymyxin B Sulfate||30.2
+Tablet|Nebita|5 mg|Nebivolol Hydrochloride||12
+Syrup|Nectar|(0.75 ml+1.93 ml)/5 ml|Glycerol + Liquid Sugar||40.27
+Tablet|NephFit|600 mg|Amino Acid Ketoanalogues||40
+Tablet|Neumig|5 mg|Mirogabalin Besylate||20
+Tablet|Neuro-B|100 mg+200 mg+200 mcg|Vitamin B1, B6 & B12||10
+Tablet|Neurolep|800 mg|Piracetam||6.04
+Capsule|Neurolin|50 mg|Pregabalin||15
+Capsule|Neurolin|25 mg|Pregabalin||11
+Tablet (CR)|Neurolin CR|165 mg|Pregabalin||35
+Tablet|Neumig|2.5 mg|Mirogabalin Besylate||12
+Tablet|Neumig|10 mg|Mirogabalin Besylate||35
+Injection|Neuro-B|(100 mg+100 mg+1 mg)/3 ml|Vitamin B1, B6 & B12||30
+Oral Solution|Neurolep|500 mg/5 ml|Piracetam||160
+Capsule|Neurolin|75 mg|Pregabalin||19
+Tablet (CR)|Neurolin CR|82.5 mg|Pregabalin||25
+Injection|Newbain|20 mg/2 ml|Nalbuphine Hydrochloride||100.68
+Capsule|Nexum|20 mg|Esomeprazole||7.02
+Capsule|Nexum|40 mg|Esomeprazole||10.03
+Injection (Vial)|Nexum|40 mg/vial|Esomeprazole||110
+Tablet (MUPS)|Nexum MUPS|40 mg|Esomeprazole (MUPS preparation)||14
+Soft Capsule|Nilagel|500 mg|Black Seed Oil [Nigella Sativa]||7.5
+Tablet|Nomi|2.5 mg|Zolmitriptan||25.17
+Powder / Sachet|Normo-K|15 gm/sachet|Sodium Polystyrene Sulfonate||145
+Tablet|Norvis|50 mg|Tiemonium Methylsulfate||8.5
+Injection|Norvis|5 mg/2 ml|Tiemonium Methylsulfate||35
+Tablet (MUPS)|Nexum MUPS|20 mg|Esomeprazole (MUPS preparation)||10
+Tablet (SR)|Nidipine SR|20 mg|Nifedipine||0.64
+Tablet|Nimocal|30 mg|Nimodipine||5
+Nasal Spray|Nomi|2.5 mg/spray|Zolmitriptan||450
+Tablet|Norpill 1|1.5 mg|Levonorgestrel [For emergency contraception]||70
+Syrup|Norvis|10 mg/5 ml|Tiemonium Methylsulfate||55
+Syrup|Ocof|(20 mg+10 mg+2.5 mg)/5 ml|Dextromethorphan + Phenylephrine + Triprolidine||110
+Capsule|Ocubil|160 mg|Bilberry fruit [Vaccinium myrtillus L]||20
+Eye Drops|Oculant|0.4%+0.3%|Polyethylene Glycol + Propylene Glycol||150.45
+Tablet|Ofran|8 mg|Ondansetron||11
+Eye Drops|Ocubrom|0.07%|Bromfenac Sodium||90
+Syrup|Ofkof|(10 mg+30 mg+1.25 mg)/5 ml|Dextromethorphan + Pseudoephedrine + Triprolidine||80
+Oral Solution|Ofran|4 mg/5 ml|Ondansetron||50
+Injection|Ofran|8 mg/4 ml|Ondansetron||32
+Capsule|Olistat|60 mg|Orlistat||30
+Capsule|Olistat|120 mg|Orlistat||60
+Tablet|Olmecar|20 mg|Olmesartan Medoxomil||10
+Tablet|Olmecar|40 mg|Olmesartan Medoxomil||18
+Tablet|Olmecar Plus|20 mg+12.5 mg|Olmesartan Medoxomil + Hydrochlorothiazide||10
+Tablet|Olmecar|10 mg|Olmesartan Medoxomil||6
+Tablet|Orili|200 mg|Elagolix Sodium||235
+Mouthwash|Orostar Cool Mint||Menthol + Thymol + Eucalyptol + Methyl Salicylate||80.24
+Tablet|Orili|150 mg|Elagolix Sodium||170
+Mouthwash|Orostar Original||Menthol + Thymol + Eucalyptol + Methyl Salicylate||80.24
+Oral Solution|Osmolax|3.35 gm/5 ml|Lactulose||160
+Mouthwash|Orostar Plus||Eucalyptol + Menthol + Methyl Salicylate + Thymol + Sodium Fluoride||85.26
+Tablet|Ostel-D|70 mg+2800 IU|Alendronic Acid + Vitamin D3||30.2
+Capsule|Ostinem|500 mg|Natural Eggshell Membrane||40
+Tablet|Otelast|10 mg|Apremilast||25
+Ear Drops|Otic-4|0.3%+1%+0.025 %+2%|Ofloxacin + Clotrimazole + Beclomethasone + Lidocaine||150
+Capsule|Otegal|150 mg|Oteseconazole||170
+Tablet|Otelast|30 mg|Apremilast||60
+Tablet|Oxapro|5 mg|Escitalopram Oxalate||7
+Tablet|Oxapro|10 mg|Escitalopram Oxalate||12
+Tablet|Oxat|10 mg|Paroxetine Hydrochloride||8
+Tablet|Oxat|20 mg|Paroxetine Hydrochloride||12.03
+Cream / Topical|Oxifun|1%|Oxiconazole Nitrate||50.35
+Lotion / Topical|Oxifun|1%|Oxiconazole Nitrate||50.35
+Injection|Paloset|0.075 mg/1.5 ml|Palonosetron||75.22
+Tablet (CR)|Oxifyl CR|400 mg|Pentoxifylline||7.04
+Tablet|Paloset|0.5 mg|Palonosetron||20
+Tablet (SR)|Panodin SR|600 mg|Etodolac||15.1
+Tablet|Pentadol|50 mg|Tapentadol Hydrochloride||14
+Tablet|Pentadol|100 mg|Tapentadol Hydrochloride||25
+Cream / Topical|Penrif|30%+8%|Methyl Salicylate + Menthol||55
+Tablet|Pentadol|75 mg|Tapentadol Hydrochloride||20
+Tablet|Penvik|250 mg|Phenoxymethyl Penicillin [Penicillin V]||2.8
+Tablet|Penvik DS|500 mg|Phenoxymethyl Penicillin [Penicillin V]||5.5
+Syrup|Pepnor||Jeerakaddarishta Carminative||100
+Suspension|Penvik Forte|250 mg/5 ml|Phenoxymethyl Penicillin [Penicillin V]||84.43
+Tablet|Peranel|2 mg|Perampanel||15
+Tablet|Peranel|4 mg|Perampanel||25
+Tablet|Perkidopa|100 mg+10 mg|Levodopa + Carbidopa||7
+Tablet|Perkidopa|250 mg+25 mg|Levodopa + Carbidopa||10
+Tablet|Perkinil|5 mg|Procyclidine Hydrochloride||1.25
+Injection|Perkinil|10 mg/2 ml|Procyclidine Hydrochloride||35
+Tablet|Perkirol|0.25 mg|Ropinirole||2.01
+Tablet|Perkirol|2 mg|Ropinirole||6.04
+Cream / Topical|Pevitin|1%+0.1%|Econazole Nitrate + Triamcinolone Acetonide||70
+Capsule|Phylopen|250 mg|Flucloxacillin Sodium||8
+Injection (Vial)|Phylopen|500 mg/vial|Flucloxacillin Sodium||54
+Suspension|Phylopen Forte|250 mg/5 ml|Flucloxacillin Sodium||125
+Vaginal Gel|Plan A|1.8%+1%+0.4%|Lactic acid + Citric acid + Potassium bitartrate||120
+Suspension|Phylopen|125 mg/5 ml|Flucloxacillin Sodium||80
+Capsule|Phylopen DS|500 mg|Flucloxacillin Sodium||14
+Tablet|Pivalo|2 mg|Pitavastatin Calcium||10.03
+Injection (Vial)|PMB|5 lac unit|Polymyxin B Sulfate||400
+Tablet|Prazolok|1 mg|Prazosin Hydrochloride||4
+Tablet (ER)|Prazolok ER|2.5 mg|Prazosin Hydrochloride||10
+Capsule|Probio|4 billion|Probiotic Combination [4 Billion]||40
+Tablet|Prazolok|2 mg|Prazosin Hydrochloride||6
+Tablet (ER)|Prazolok ER|5 mg|Prazosin Hydrochloride||15
+Powder / Sachet|Probio (For kids)|4 billion/sachet|Probiotic Combination [4 Billion]||40
+Capsule|Probio R|20 billion|Probiotic Combination [20 Billion]||40
+Capsule|Prolert|20 mg|Fluoxetine Hydrochloride||3.01
+Oral Solution|Prolert|20 mg/5 ml|Fluoxetine Hydrochloride||60
+Tablet|Promtil|5 mg|Prochlorperazine Maleate||0.65
+Tablet|Pronor|5 mg|Finasteride [For B.P.H.]||10.07
+Tablet|Proxivir|300 mg|Tenofovir Disoproxil||80
+Tablet/Capsule Strip|Pylotrip|30 mg+1000 mg+500 mg|Lansoprazole + Amoxicillin + Clarithromycin||55.16
+Scalp Lotion|Prosalic|0.05%+2%|Betamethasone Dipropionate + Salicylic Acid||150.45
+Tablet|Purotrol|5 mg|Levocetirizine Dihydrochloride||3.51
+Tablet Strip|Pylotrip R|20 mg+1000 mg+500 mg|Rabeprazole + Amoxicillin + Clarithromycin||55
+Capsule|Q-late|400 mcg|6s-5- Methyltetrahydrofolate [Bio-Active Folate]||30
+Tablet|QTP|25 mg|Quetiapine Fumarate||3
+Tablet|QTP|100 mg|Quetiapine Fumarate||10
+Tablet (XR)|QTP XR|200 mg|Quetiapine Fumarate||20
+Tablet (XR)|QTP XR|50 mg|Quetiapine Fumarate||8
+Tablet|Rabeca|20 mg|Rabeprazole Sodium||7
+Tablet (XR)|Ranolin XR|500 mg|Ranolazine||16.05
+Tablet|Quinivir|200 mg|Hydroxychloroquine Sulphate||12
+Capsule|Racedot|100 mg|Racecadotril||8.03
+Capsule|Rapiflo|8 mg|Silodosin||25
+Capsule|Rapiflo|4 mg|Silodosin||12
+Injection (Vial/Pen)|Rapilog|100 IU/ml|Insulin Aspart||460
+Injection (Vial/Cartridge)|RapiMix|30%+70%|Insulin Aspart + Insulin Aspart Protamine||450
+Tablet|Rasalet|0.5 mg|Rasagiline||15
+Tablet|Rasalet|1 mg|Rasagiline||20
+Ointment / Topical|Rectocare|0.4%|Nitroglycerin (Ointment)||65.45
+Capsule|Relatro|25 mg|Dantrolene Sodium||10
+Tablet|Reluciba|120 mg|Relugolix||250
+Suspension|Remac|125 mg/5 ml|Clarithromycin||395
+Ointment / Topical|Remus|0.03%|Tacrolimus Monohydrate (Topical)||150
+Capsule|Renacom|125 mg+125 mg+50 mg+75 mg+75 mg|Cranberry + Saw Palmetto + Pygeum Bark + Tomato + Uva Ursi||20
+Capsule|Ravu|100 mg|Ravuconazole||300
+Capsule|Redclov|40 mg|Red Clover Isoflavones||12
+Balm / Ointment|Reli Balm|80 mg+45 mg+180 mg+10 mg|Menthol + Camphor + Eucalyptus Oil + Mint Oil||200
+Tablet|Remac|500 mg|Clarithromycin||45
+Injection (Vial)|Remdinil|5 mg/ml|Remdesivir||2000
+Ointment / Topical|Remus|0.1%|Tacrolimus Monohydrate (Topical)||360
+Tablet|Renorma|2.5 mg|Tibolone||20.13
+Tablet|Renustat|50 mg|Roxadustat||350
+Tablet (SR)|Repres SR|1.5 mg|Indapamide||5.03
+Tablet|Renustat|70 mg|Roxadustat||500
+Capsule|ResQ|50 mg|Ubidecarenone [Coenzyme Q10]||20
+Capsule|ResQ|100 mg|Ubidecarenone [Coenzyme Q10]||40
+Ointment / Topical|Retabac|1% (15% listed)|Retapamulin||200
+Capsule|ResQ|200 mg|Ubidecarenone [Coenzyme Q10]||75
+Syrup|Revatol||Mahadrakkharist [Grape extract]||130
+Tablet|Revira|500 mg|Valacyclovir||40.27
+Tablet|Revocit|210 mg|Ferric Citrate||25
+Injection (Vial)|Revofer|750 mg/15 ml|Ferric Carboxymaltose||1000
+Medical Device|Revolizer||Inhaler device||310
+Tablet|Revira|1 gm|Valacyclovir||75.22
+Injection (Vial)|Revofer|500 mg/10 ml|Ferric Carboxymaltose||700
+Injection (Vial)|Revofer|1 gm/20 ml|Ferric Carboxymaltose||1300
+Tablet|Rex|6 mg+200 mg+50 mg|Beta carotene + Vitamin C + Vitamin E||3.5
+Powder / Sachet|Rice ORS||Oral rehydration salt [rice based]||10
+Tablet|Ripril|5 mg|Ramipril||8
+Capsule|Rivatig|1.5 mg|Rivastigmine Tartrate||20
+Tablet|Ripril|2.5 mg|Ramipril||5
+Tablet|Risedon|150 mg|Risedronate Sodium||120.37
+Tablet|RivaXa|2.5 mg|Rivaroxaban||8
+Tablet|RivaXa|10 mg|Rivaroxaban||25
+Tablet|Robic|500 mg|Ornidazole||7.02
+Tablet|Rosuva|5 mg|Rosuvastatin Calcium||12
+Tablet|Rosuva|20 mg|Rosuvastatin Calcium||32
+Tablet|Rosuva|10 mg|Rosuvastatin Calcium||22
+Tablet|Rosuva EZ|10 mg+10 mg|Rosuvastatin + Ezetimibe||25
+Tablet|Rosuva EZ|20 mg+10 mg|Rosuvastatin + Ezetimibe||33
+Tablet|Rozy|0.5 mg+0.25 mg|Drospirenone + Estradiol||14
+Tablet|Rosuva EZ|5 mg+10 mg|Rosuvastatin + Ezetimibe||13
+Tablet|Rozy DS|1 mg+0.5 mg|Drospirenone + Estradiol||24
+Tablet|Rupatrol|10 mg|Rupatadine Fumarate||12
+Tablet|Rutix|400 mg|Ofloxacin||22.14
+Tablet|Saga|200 mg|Sparfloxacin||15.05
+Cream / Topical|Scabex|5% w/w|Permethrin||60
+Tablet|Rutix|200 mg|Ofloxacin||12.09
+Tablet|Safyron|10 mg|Dydrogesterone||40
+Ointment / Topical|Salicid|12%|Salicylic Acid||100
+Capsule|Seclo|20 mg|Omeprazole||6
+Capsule|Seclo|40 mg|Omeprazole||9
+Injection (Vial)|Seclo|40 mg/vial|Omeprazole||95
+Tablet (MUPS)|Seclo MUPS|20 mg|Omeprazole (MUPS tablet)||7
+Tablet|Secnid DS|1000 mg|Secnidazole||20.06
+Tablet|Secrin|1 mg|Glimepiride||6
+Tablet|Secrin|2 mg|Glimepiride||10
+Tablet|Secrin|3 mg|Glimepiride||12
+Tablet|Secrin|4 mg|Glimepiride||15
+Tablet|Secrin M|1 mg+500 mg|Glimepiride + Metformin||7
+Tablet|Secrin M|2 mg+500 mg|Glimepiride + Metformin||12
+Tablet|Sedil|5 mg|Diazepam||0.69
+Tablet|Sedno|5 mg|Desloratadine||2.52
+Injection (PFS)|Semazic|0.5 mg/0.375 ml|Semaglutide||600
+Antiseptic Solution|Sepnil|1.5%+15%|Chlorhexidine Gluconate + Cetrimide||1418
+Tablet|Siglimet|50 mg+1000 mg|Sitagliptin + Metformin Hydrochloride||18
+Tablet (XR)|Siglimet XR|50 mg+1000 mg|Sitagliptin + Metformin Hydrochloride||18
+Tablet|Siglita|50 mg|Sitagliptin||13
+Tablet|Sitamax|50 mg|Sitafloxacin||80
+Injection|Sedil|10 mg/2 ml|Diazepam||7
+Injection (PFS)|Semazic|0.25 mg/0.188 ml|Semaglutide||350
+Antiseptic Spray|Sepnil|0.5%+3%|Chlorhexidine Gluconate + Cetrimide||75
+Tablet|Siglimet|50 mg+500 mg|Sitagliptin + Metformin Hydrochloride||16
+Tablet (XR)|Siglimet XR|50 mg+500 mg|Sitagliptin + Metformin Hydrochloride||16
+Tablet (XR)|Siglimet XR|100 mg+1000 mg|Sitagliptin + Metformin Hydrochloride||30
+Capsule|Silybin|140 mg|Silymarin [Dried extract of milk thistle fruits]||12
+Tablet|Sodibar|600 mg|Sodium Bicarbonate||6
+Tablet|Solider|10 mg|Solifenacin Succinate||30
+Nasal Drops / IV Infusion|Solo|0.9%|Sodium Chloride||25
+IV Infusion|Solodex|0.9%+5%|Sodium Chloride + Dextrose||75.89
+IV Infusion|Solodex JR|0.45%+5%|Sodium Chloride + Dextrose||73.6
+Tablet|Sonap|250 mg|Naproxen Sodium||6
+Tablet|Solider|5 mg|Solifenacin Succinate||17
+IV Infusion|Solodex Baby|0.225%+5%|Sodium Chloride + Dextrose||72.45
+Nasal Spray|SoloSpray|0.9%|Sodium Chloride||150
+Tablet|Sonap|500 mg|Naproxen Sodium||10
+Oral Solution|Sopilax|5 mg/5 ml|Sodium Picosulfate||150
+Tablet|Sorasiba|200 mg|Sorafenib Tosylate||250
+Injection (Vial)|Specbac|1 gm/vial|Meropenem Trihydrate||1300
+Topical Solution|Splendora|5%|Minoxidil||601.81
+Eye/Ear Drops|SQ-Mycetin|0.5%|Chloramphenicol (Ophthalmic)||34.5
+Tablet|Sopilax|10 mg|Sodium Picosulfate||10
+Injection (Vial)|Specbac|500 mg/vial|Meropenem Trihydrate||700
+Injection (Vial)|Specbac|250 mg/vial|Meropenem Trihydrate||400
+Topical Solution|Splendora|2%|Minoxidil||501.5
+Powder / Sachet|Square Collagen||Collagen Peptide & Others||180
+Capsule|Suev|10 mg|Atomoxetine Hydrochloride||8.03
+Nebulizer Solution|Sulprex|(2.5 mg+500 mcg)/3 ml|Salbutamol + Ipratropium (Solution for inhalation)||20
+Inhaler|Sultolin|100 mcg/puff|Salbutamol (Inhaler)||250
+Nebulizer Solution|Sultolin|5 mg/ml|Salbutamol||120.82
+Inhaler|Sulprex|(100 mcg+20 mcg)/puff|Salbutamol + Ipratropium (Inhaler)||250.75
+Syrup|Sultolin|2 mg/5 ml|Salbutamol||23
+Inhalation Capsule|Sultolin|200 mcg|Salbutamol||2.51
+Tablet (SR)|Sultolin SR|8 mg|Salbutamol||0.92
+Cream / Lotion|SunMask||Zinc oxide + Octinoxate + Enzacamene + Avobenzone||250
+Tablet|Susten|30 mg|Dapoxetine Hydrochloride||30
+Tablet|Suvotol|10 mg|Suvorexant||25
+Tablet|Suvirus|400 mg|Sofosbuvir||600
+Tablet|Suzyme|325 mg|Pancreatin||3.51
+Injection (Vial)|Tazid|250 mg/vial|Ceftazidime Pentahydrate||85.26
+Injection (Vial)|Tazid|500 mg/vial|Ceftazidime Pentahydrate||130.39
+Injection (Vial)|Tazocilin|(4 gm+0.5 gm)/vial|Piperacillin + Tazobactam||1003
+Injection (Vial)|Tazid|1 gm/vial|Ceftazidime Pentahydrate||240.72
+Injection (Vial)|Tazocilin|(2 gm+0.25 gm)/vial|Piperacillin + Tazobactam||550
+Tablet|Tebast|10 mg|Ebastine||6.02
+Injection (Vial)|Teconin|200 mg/vial|Teicoplanin||700
+Injection (Vial)|Teconin|400 mg/vial|Teicoplanin||1300
+Tablet|Telmilock|80 mg|Telmisartan||20
+Tablet|Telmilock|40 mg|Telmisartan||12.5
+Tablet|Telmilock|20 mg|Telmisartan||7
+Tablet|Telmilock AM|5 mg+40 mg|Amlodipine Besilate + Telmisartan||12.5
+Tablet|Telmilock Plus|40 mg+12.5 mg|Telmisartan + Hydrochlorothiazide||12.5
+Capsule|Tetrax|500 mg|Tetracycline Hydrochloride||3.39
+Tablet|Thyrin|25 mcg|Levothyroxine Sodium||1.11
+Tablet|Thyrin|75 mcg|Levothyroxine Sodium||3.1
+Tablet|Ticalog|90 mg|Ticagrelor||75
+Inhaler|Ticamet|(25 mcg+250 mcg)/puff|Salmeterol + Fluticasone Propionate||850
+Inhalation Capsule|Ticamet|50 mcg+250 mcg|Salmeterol + Fluticasone Propionate||12.03
+Tablet|Telmilock AM|5 mg+80 mg|Amlodipine Besilate + Telmisartan||20
+Tablet Kit|Terminex|200 mg+200 mcg|Mifepristone + Misoprostol||300
+Tablet|Tezo|200 mg|Tedizolid Phosphate||300
+Tablet|Thyrin|50 mcg|Levothyroxine Sodium||2.25
+Tablet|Thyrin|100 mcg|Levothyroxine Sodium||3.1
+Inhaler|Ticamet|(25 mcg+125 mcg)/puff|Salmeterol + Fluticasone Propionate||596.79
+Inhalation Capsule|Ticamet|50 mcg+500 mcg|Salmeterol + Fluticasone Propionate||17
+Inhalation Capsule|Ticamet|50 mcg+100 mcg|Salmeterol + Fluticasone Propionate||6.52
+Cream / Topical|Ticas|0.05%|Fluticasone Propionate (Topical)||90.61
+Tablet|Ticstop|25 mg|Tetrabenazine||35
+Tablet|Timotor|100 mg|Trimebutine Maleate||8
+Tablet|Tofator|5 mg|Tofacitinib||35
+Tablet|Tolfem|200 mg|Tolfenamic acid||10
+Tablet|Ticstop|12.5 mg|Tetrabenazine||20
+Tablet|Tilex Max|750 mg+50 mg|Glucosamine Sulfate + Diacerein||12
+Soft Capsule|Toco Soft|50 mg+13.5 mg|Tocotrienol + Tocopherol||15
+Cream / Topical|Togent|2%+0.1%|Diphenhydramine Hydrochloride + Zinc Acetate||35.24
+Cream / Topical|Topicort|1%|Hydrocortisone Acetate||70
+Tablet|Torax|10 mg|Ketorolac Tromethamine||20
+Injection|Torax|60 mg/2 ml|Ketorolac Tromethamine||100
+Injection|Torax|30 mg/ml|Ketorolac Tromethamine||60
+Tablet|Torsid|20 mg|Torasemide||8
+Cream / Topical|Torel|(25.40 mg+14.30 mg+4.20 mg+0.05 mg)/gm|Menthol + Camphor + Methyl Salicylate + Oleoresin Capsicum||70
+Tablet|Torsid|5 mg|Torasemide||6
+Tablet|Tory|60 mg|Etoricoxib||8
+Tablet|Tory|120 mg|Etoricoxib||15
+Tablet|TRB|80 mg|Resmetirom||45
+Tablet|Tory|90 mg|Etoricoxib||12.09
+Eye Drops|Travolar|0.004%|Travoprost||470
+Tablet|TRB|100 mg|Resmetirom||55
+Tablet|TRB|60 mg|Resmetirom||35
+Inhalation Capsule|Trelanti|25 mcg+100 mcg+62.5 mcg|Vilanterol Trifenatate + Fluticasone Furoate + Umeclidinium Bromide||90
+Tablet|Trevox|500 mg|Levofloxacin Hemihydrate||17
+Eye/Ear Drops|Trevox|1.5%|Levofloxacin (Eye/Ear)||0
+Tablet|Tridyl|2 mg|Trihexyphenidyl Hydrochloride||5.5
+Oral Solution|Tridyl|5 mg/5 ml|Trihexyphenidyl Hydrochloride||125
+Nasal Spray|Trispray|55 mcg/spray|Triamcinolone Acetonide (Nasal Spray)||201
+Tablet|Trupan|20 mg|Pantoprazole Sodium||7
+IV Infusion|Trevox|500 mg/100 ml|Levofloxacin Hemihydrate||100.3
+Eye Drops|Trevox D|0.1%+0.5%|Dexamethasone + Levofloxacin||200
+Tablet|Tridyl|5 mg|Trihexyphenidyl Hydrochloride||12
+Tablet|Tridyl|1 mg|Trihexyphenidyl Hydrochloride||3
+Soft Capsule|Trumega|1000 mg|Omega-3 Acid Ethyl Esters||20
+Tablet|Trupan|40 mg|Pantoprazole Sodium||10
+Injection (Vial)|Trupan|40 mg/vial|Pantoprazole Sodium||90
+Tablet|Tryptin|10 mg|Amitriptyline Hydrochloride||0.85
+Tablet|Truxil|30 mg+10 mg|Almitrine Bismesylate + Raubasine||11
+Tablet|Tryptin|25 mg|Amitriptyline Hydrochloride||1.76
+Tablet|Tryptin Plus|12.5 mg+5 mg|Amitriptyline Hydrochloride + Chlordiazepoxide||8
+Syrup|Tusca|(30 mg+100 mg+1.25 mg)/5 ml|Pseudoephedrine + Guaiphenasine + Triprolidine||65
+Syrup|Tusca Plus|(100 mg+1.1 mg+14 mg)/5 ml|Guaifenesin + Levomenthol + Diphenhydramine||85
+Tablet|Ucol|2 mg|Tolterodine Tartrate||5
+Suspension|Ulrif|1 gm/5 ml|Sucralfate||400
+Inhalation Capsule|Ultivent-M|150 mcg+50 mcg+160 mcg|Indacaterol + Glycopyrronium + Mometasone Furoate||65
+Effervescent Tablet|Tylace|600 mg|Acetylcysteine||20
+Capsule|Ulpep|500 mg|Hingastak Churna||5
+Inhalation Capsule|Ultivent|110 mcg+50 mcg|Indacaterol + Glycopyrronium||60
+Soft Capsule|Uripam|160 mg|Saw Palmetto||20
+Oral Solution|Uriset|(1500 mg+250 mg)/5 ml|Potassium Citrate + Citric Acid||200
+Capsule|Urobery|400 mg|Cranberry [Vaccinium macrocarpon]||20
+Suspension|Urocure|25 mg/5 ml|Nitrofurantoin||80
+Tablet|Urso|150 mg|Ursodeoxycholic Acid||15
+Tablet|Utal|5 mg|Ulipristal Acetate [For uterine fibroids]||54.5
+Tablet|Valmor|49 mg+51 mg|Sacubitril + Valsartan||85
+Syrup|Valoate|200 mg/5 ml|Sodium Valproate||100.3
+Tablet (CR)|Valoate CR|300 mg|Sodium Valproate||8.03
+Suspension|Vanprox|40 mg/5 ml|Cefpodoxime Proxetil||98.65
+Tablet|Vanprox Plus|200 mg+125 mg|Cefpodoxime Proxetil + Clavulanic Acid||46.15
+Tablet (ER)|Uriten|10 mg|Alfuzosin Hydrochloride||10.07
+Syrup|Urobery|300 mg/5 ml|Cranberry [Vaccinium macrocarpon]||250
+Capsule (SR)|Urocure SR|100 mg|Nitrofurantoin||20.06
+Tablet|Urso|300 mg|Ursodeoxycholic Acid||25
+Capsule|Valesom|200 mg+100 mg+100 mg+3 mg|Valerian + Passion + Hops + Melatonin||15
+Tablet|Valmor|24 mg+26 mg|Sacubitril + Valsartan||45
+Tablet (CR)|Valoate CR|200 mg|Sodium Valproate||6
+Tablet (CR)|Valoate CR|500 mg|Sodium Valproate||12.03
+Pediatric Drops|Vanprox|20 mg/ml|Cefpodoxime Proxetil||60.4
+Tablet|Vardamate|10 mg|Vardenafil||35
+Tablet|Vardamate|20 mg|Vardenafil||60
+Tablet|Vertina-D|10 mg+10 mg|Pyridoxine Hydrochloride + Doxylamine Succinate||5
+Tablet|Viglimet|50 mg+500 mg|Vildagliptin + Metformin Hydrochloride||20
+Tablet|Viglita|50 mg|Vildagliptin||16
+Tablet|Vigorex|50 mg|Sildenafil Citrate||30.1
+IV Infusion|Vigosol|5%|Amino Acid, D-Sorbitol & Electrolytes||352
+Inhalation Capsule|Vilanti|25 mcg+200 mcg|Vilanterol Trifenatate + Fluticasone Furoate||30
+Tablet|Vertina Plus|25 mg+50 mg|Meclizine + Pyridoxine||3.01
+Tablet|Vertina-DX|20 mg+20 mg|Pyridoxine Hydrochloride + Doxylamine Succinate||7
+Tablet|Viglimet|50 mg+850 mg|Vildagliptin + Metformin Hydrochloride||22
+Tablet|Vigorex|25 mg|Sildenafil Citrate||20.06
+Tablet|Vigorex|100 mg|Sildenafil Citrate||50.15
+Inhalation Capsule|Vilanti|25 mcg+100 mcg|Vilanterol Trifenatate + Fluticasone Furoate||22
+Antiseptic Solution|Viodin|10% w/v|Povidone Iodine||30
+Ointment / Topical|Viodin|5% w/w|Povidone Iodine||55
+Injection (Vial)|Virux|500 mg/vial|Acyclovir (Injection)||702.11
+Tablet|Virux|200 mg|Acyclovir (Oral)||14.1
+Cream / Topical|Virux|5% w/w|Acyclovir (Topical)||70
+Gel / Topical|VOLINAC|1% w/w|Diclofenac Sodium + Methyl Salicylate + Linseed Oil + Menthol||100
+Tablet|Voniza|10 mg|Vonoprazan||7
+Mouthwash / Gargle|Viodin|1% w/v|Povidone Iodine||50
+Suspension|Virux|200 mg/5 ml|Acyclovir (Oral)||125.85
+Tablet|Virux|400 mg|Acyclovir (Oral)||22.14
+Cream / Topical|Virux-HC|5%+1%|Acyclovir + Hydrocortisone||70
+Gel / Topical|VOLINAC Max|2% w/w|Diclofenac Sodium + Methyl Salicylate + Linseed Oil + Menthol||170
+Tablet|Voniza|20 mg|Vonoprazan||10
+Tablet Kit|Vonokit|20 mg+1000 mg+500 mg|Vonoprazan + Amoxicillin + Clarithromycin||60
+Tablet|Vori|50 mg|Voriconazole||35
+Tablet|Vori|200 mg|Voriconazole||100
+Injection (Vial)|Vori|200 mg/vial|Voriconazole||2000
+Ear Drops|Waxnil|5% w/v|Sodium Bicarbonate [Ear Preparations]||160
+Tablet|Xenole|500 mg+20 mg|Naproxen Sodium + Esomeprazole Magnesium||15
+Tablet|Xenole|375 mg+20 mg|Naproxen Sodium + Esomeprazole Magnesium||13
+Cream / Topical|Xfin|1%|Terbinafine Hydrochloride||80
+Tablet|Xfin|250 mg|Terbinafine Hydrochloride||40
+Tablet (DR)|Xpos|100 mg|Posaconazole||200
+Nasal Drops / Spray|Xylocon|0.05%|Oxymetazoline Hydrochloride (Nasal Preparation)||45.13
+Soft Capsule|Zanthin|4 mg|Astaxanthin||22
+Tablet|Xflam|400 mg|Dexibuprofen||5.01
+Tablet|Xten|20 mg|Tenoxicam||8.03
+Nasal Drops|Xylocon|0.025%|Oxymetazoline Hydrochloride (Nasal Preparation)||40.13
+Soft Capsule|Zanthin|2 mg|Astaxanthin||12
+Powder / Sachet|Zerocal|12 mg/sachet|Sucralose||3.6
+Tablet|Zerocal|6.5 mg|Sucralose||1.4
+Powder / Sachet|Zerocal Stevia||Steviol Glycoside||4
+Syrup|Zesup|10 mg/5 ml|Zinc Sulfate Monohydrate||50
+Capsule|Zif Forte||Carbonyl Iron + Folic Acid + Zinc Sulfate + Vitamin B Complex + Vitamin C||4
+Dispersible Tablet|Zesup|20 mg|Zinc Sulfate Monohydrate||3.5
+Tablet|Zif-A|8 mg+0.5 mg+22.5 mg|Ferrous Ascorbate + Folic Acid + Zinc Sulfate||5
+Capsule|Zif-CI|50 mg+0.50 mg+61.80 mg|Carbonyl Iron + Folic Acid + Zinc Sulfate||5
+Capsule|Ziliron-B||Iron Polymaltose Complex + Folic Acid + Zinc + Vitamin B- Complex||5
+Tablet|Zifolet|5 mg+20 mg|Folic Acid + Zinc Sulfate Monohydrate||2
+Capsule|Zimax|250 mg|Azithromycin Dihydrate||25.08
+Suspension|Zimax|200 mg/5 ml|Azithromycin Dihydrate||95
+Tablet|Zimax|500 mg|Azithromycin Dihydrate||40
+Tablet|Zolivox|400 mg|Linezolid||60
+Injection (Vial)|Zimax|500 mg/vial|Azithromycin Dihydrate||461.38
+Injection (Vial)|Zolibac|1 gm/vial|Cefazolin Sodium||200
+Tablet|Zolivox|600 mg|Linezolid||85
+Suspension|Zolivox|100 mg/5 ml|Linezolid||280
+Suspension|Zox|100 mg/5 ml|Nitazoxanide||40
+Tablet|Zox|500 mg|Nitazoxanide||10.07`;
+let DB=load();
+function load(){try{const s=localStorage.getItem(KEY);if(s){const d=JSON.parse(s);fill(d);return d}}catch(e){}return seed()}
+function fill(d){const P={};SEED.split('\n').forEach(l=>{const a=l.split('|');if(a[4]&&+a[5])P[a[4]]=+a[5]});d.meds.forEach(m=>{if(!m.price&&P[m.medex])m.price=P[m.medex]})}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}if(sb&&sess&&!pulling&&snap()!==lastJson){clearTimeout(timer);timer=setTimeout(push,1200)}}
+function seed(){const meds=SEED.split('\n').map((l,i)=>{const[f,b,s,g,id,p]=l.split('|');return{id:i+1,form:f,brand:b,strength:s,generic:g,company:'Square Pharmaceuticals PLC',medex:id,price:+p,reorder:5,rx:RX.test(g)}});
+ const batches=meds.filter(m=>/tablet|capsule/i.test(m.form)).map((m,i)=>({id:i+1,med:m.id,no:'B'+(100+m.id),exp:'2029-11-22',qty:100,cost:+(m.price*.7).toFixed(2)}));
+ const purchases=batches.map(b=>({date:today(),sup:'Square Pharmaceuticals PLC',name:(x=>x.brand+' '+x.strength+' ('+x.form+')')(meds[b.med-1]),no:b.no,qty:b.qty,cost:b.cost}));
+ return{meds,batches,sales:[],purchases,users:[{u:'admin',role:'Admin'}],cart:[]}}
+const med=id=>DB.meds.find(m=>m.id==id),name=m=>`${m.brand} ${m.strength} (${m.form})`;
+const valid=id=>DB.batches.filter(b=>b.med==id&&b.qty>0&&b.exp>=today());
+const stock=id=>valid(id).reduce((s,b)=>s+b.qty,0);
+const nid=a=>a.reduce((x,y)=>Math.max(x,y.id||0),0)+1;
+const toast=t=>{const m=$('#msg');m.textContent=t;m.style.display='block';setTimeout(()=>m.style.display='none',2600)};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TABS=['Dashboard','Sales','Inventory','Medicines','Purchases','History'];let tab='Dashboard',q='';
+function nav(){$('#nav').innerHTML=TABS.map(t=>`<button class="${t==tab?'on':''}" onclick="go('${t}')">${t}</button>`).join('')}
+function go(t){tab=t;q='';location.hash=t;render()}
+function stackTables(){document.querySelectorAll('#app table').forEach(t=>{const hs=[...t.querySelectorAll('tr:first-child th')].map(h=>h.textContent);if(!hs.length)return;t.classList.add('stack');t.querySelectorAll('tr').forEach(r=>[...r.children].forEach((c,i)=>{if(c.tagName==='TD'&&hs[i])c.setAttribute('data-l',hs[i])}))})}
+function render(){nav();$('#app').innerHTML=VIEW[tab]();stackTables();save()}
+const VIEW={
+Dashboard(){const t=today(),ds=DB.sales.filter(s=>lds(new Date(s.date))==t),rev=ds.reduce((a,s)=>a+s.total,0);
+ const low=DB.meds.filter(m=>sold(m.id)&&stock(m.id)<=m.reorder),near=DB.batches.filter(b=>b.qty>0&&b.exp>=t&&b.exp<=addD(90)),exp=DB.batches.filter(b=>b.qty>0&&b.exp<t);
+ const val=DB.batches.filter(b=>b.exp>=t).reduce((a,b)=>a+b.qty*b.cost,0);
+ const top={};DB.sales.forEach(s=>s.items.forEach(i=>top[i.name]=(top[i.name]||0)+i.qty));const tp=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ return`<div class="grid"><div class="card"><div class="k">Today’s sales</div><div class="v">${money(rev)}</div><div class="k">${ds.length} invoices</div></div>
+ <div class="card"><div class="k">Stock value (valid)</div><div class="v">${money(val)}</div></div>
+ <div class="card"><div class="k">Low stock</div><div class="v a">${low.length}</div></div>
+ <div class="card"><div class="k">Near expiry (90d)</div><div class="v a">${near.length}</div></div>
+ <div class="card"><div class="k">Expired batches</div><div class="v r">${exp.length}</div></div></div>
+ <div class="two"><div class="card"><h2>Low stock alerts</h2><div class="sc"><table><tr><th>Medicine</th><th>In stock</th><th>Reorder at</th></tr>${low.slice(0,12).map(m=>`<tr><td>${esc(name(m))}</td><td class="r">${stock(m.id)}</td><td>${m.reorder}</td></tr>`).join('')||'<tr><td>None</td></tr>'}</table></div></div>
+ <div class="card"><h2>Near expiry / expired</h2><div class="sc"><table><tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Qty</th></tr>${[...exp,...near].slice(0,12).map(b=>`<tr><td>${esc(name(med(b.med)))}</td><td>${b.no}</td><td class="${b.exp<t?'r':'a'}">${b.exp}</td><td>${b.qty}</td></tr>`).join('')||'<tr><td>None</td></tr>'}</table></div></div></div>
+ <div class="card"><h2>Top-selling medicines</h2>${tp.map(x=>`<div>${esc(x[0])} — <b>${x[1]}</b> units</div>`).join('')||'<span class="note">No sales yet.</span>'}</div>
+ <div class="note">Medicine names, types, strengths, generic names and prices come from the Square Pharmaceuticals PLC medicine list PDF. Only Tablet and Capsule types have starting stock (100 each).</div>`},
+Sales(){const list=q?DB.meds.filter(m=>mt(m,q)).slice(0,40):[];
+ const sub=DB.cart.reduce((a,c)=>a+c.qty*c.price,0),needRx=DB.cart.some(c=>med(c.med).rx);
+ return`<div class="two pos"><div class="card"><h2>Find medicine</h2><input id="sq" placeholder="Brand name or mg (e.g. Comet, Comet 500, 500 mg)" value="${esc(q)}" oninput="q=this.value;keep()" style="width:100%"><div class="row" style="margin-top:6px">${brandSug(q)}</div>
+ <div class="sc"><table class="wrap">${list.map(m=>`<tr><td>${esc(name(m))}<br><span class="note">${esc(m.generic)}${m.rx?' · <span class="tag r">Rx</span>':''}</span></td><td>${money(m.price)}</td><td>${stock(m.id)} in stock</td><td><button class="btn p" onclick="addCart(${m.id})">Add</button></td></tr>`).join('')}</table></div></div>
+ <div class="card" id="cartbox"><h2>Cart</h2><div class="sc"><table class="wrap">${DB.cart.map((c,i)=>`<tr><td>${esc(c.name)}</td><td><input type="number" min="1" value="${c.qty}" style="width:64px" onchange="DB.cart[${i}].qty=Math.max(1,+this.value);render()"></td><td>${money(c.qty*c.price)}</td><td><button class="btn d" onclick="DB.cart.splice(${i},1);render()">✕</button></td></tr>`).join('')||'<tr><td class="note">Cart is empty</td></tr>'}</table></div>
+ <div class="row" style="margin-top:8px"><input id="cu" placeholder="Customer name (optional)"><input id="dc" type="number" min="0" max="100" placeholder="Discount %" style="width:100px"></div>
+ <div class="row"><input id="rx" placeholder="Prescription ref (optional)" style="width:100%"></div>
+ <div class="row"><b>Subtotal: ${money(sub)}</b><button class="btn p" onclick="checkout()">Complete sale</button></div></div></div><div class="cartbar noprint" onclick="$('#cartbox').scrollIntoView({behavior:'smooth'})"><span>🛒 ${DB.cart.length} item(s) · ${money(sub)}</span><span>View cart ↓</span></div>`},
+Inventory(){const t=today(),rows=DB.batches.filter(b=>!q||mt(med(b.med),q));
+ return`<div class="card"><div class="row"><input id="sq" placeholder="Brand name or mg…" value="${esc(q)}" oninput="q=this.value;keep()"><span class="note">Sales use FEFO: earliest-expiry batch first; expired batches are blocked.</span></div>
+ <div class="sc"><table><tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Qty</th><th>Cost</th><th>Status</th></tr>${rows.sort((a,b)=>a.exp<b.exp?-1:1).slice(0,1000).map(b=>`<tr><td>${esc(name(med(b.med)))}</td><td>${b.no}</td><td>${b.exp}</td><td>${b.qty}</td><td>${money(b.cost)}</td><td>${b.exp<t?'<span class="tag r">Expired</span>':b.qty<=0?'<span class="tag r">Out of stock</span>':b.qty<=5&&sold(b.med)?'<span class="tag a">⚠ Low stock – only '+b.qty+' left</span>':b.exp<=addD(90)?'<span class="tag a">Near expiry</span>':'<span class="tag g">OK</span>'}</td></tr>`).join('')}</table></div></div>`},
+Medicines(){const rows=DB.meds.filter(m=>!q||mt(m,q)).slice(0,100);
+ return`<div class="card"><h2>Add medicine</h2><div class="row"><input id="f" placeholder="Form (Tablet)" style="width:100px"><input id="b" placeholder="Brand"><input id="s" placeholder="Strength"><input id="g" placeholder="Generic"><input id="c" placeholder="Company"><input id="p" type="number" placeholder="Price ৳" style="width:90px"><label><input type="checkbox" id="x"> Rx only</label><button class="btn p" onclick="addMed()">Save</button></div>
+ 
+ <details><summary class="note">Bulk import (paste CSV: form,brand,strength,generic,company,price)</summary><textarea id="csv" rows="4" style="width:100%"></textarea><button class="btn" onclick="imp()">Import</button></details></div>
+ <div class="card"><div class="row"><input id="sq" placeholder="Brand name or mg… (${DB.meds.length} medicines)" value="${esc(q)}" oninput="q=this.value;keep()"></div><div class="sc"><table><tr><th>Brand</th><th>Strength</th><th>Generic</th><th>Company</th><th>Price</th><th>Reorder</th><th>Rx</th></tr>${rows.map(m=>`<tr><td><span>${esc(m.brand)}<br><small class="note">(${esc(m.form)})</small></span></td><td>${esc(m.strength)}</td><td>${esc(m.generic)}</td><td>${esc(m.company)}</td><td><input type="number" value="${m.price}" style="width:70px;${m.price?'':'border-color:var(--rd)'}" onchange="med(${m.id}).price=+this.value;save()"></td><td><input type="number" value="${m.reorder}" style="width:64px" onchange="med(${m.id}).reorder=+this.value;save()"></td><td>${m.rx?'Rx':'—'}</td></tr>`).join('')}</table></div></div>`},
+Purchases(){psel=0;return`<div class="card"><h2>Receive stock from supplier</h2><div class="row"><div style="width:100%"><input id="pms" placeholder="Type medicine brand name or mg (e.g. Ace, Ace 500)…" oninput="pSearch(this.value)" style="width:100%"><div id="plist" class="row" style="margin-top:6px"></div><div id="psel" class="note">No medicine selected</div></div><input id="pn" placeholder="Batch no. (optional)"><label class="note">Expiry date <input id="pe" type="date" min="${today()}"></label><input id="pq" type="number" min="1" placeholder="Qty" style="width:80px"><input id="pc" type="number" step="0.01" placeholder="Unit cost" style="width:100px"><input id="ps" placeholder="Supplier (optional)"><button class="btn p" onclick="recv()">Receive</button></div></div>
+ <div class="card"><h2>Purchase log</h2><div class="sc"><table><tr><th>Date</th><th>Supplier</th><th>Medicine</th><th>Batch</th><th>Qty</th><th>Cost</th></tr>${DB.purchases.slice().reverse().map(p=>`<tr><td>${p.date}</td><td>${esc(p.sup)}</td><td>${esc(p.name)}</td><td>${esc(p.no)}</td><td>${p.qty}</td><td>${money(p.qty*p.cost)}</td></tr>`).join('')||'<tr><td class="note">No purchases yet</td></tr>'}</table></div></div>`},
+History(){return`<div class="card"><h2>Sales history</h2><div class="sc"><table class="wrap"><tr><th>Invoice</th><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th></th></tr>${DB.sales.slice().reverse().map(s=>`<tr><td>#${s.id}</td><td>${fdt(s.date)}</td><td>${esc(s.cust||'Walk-in')}</td><td>${s.items.length}</td><td>${money(s.total)}</td><td><button class="btn" onclick="inv(${s.id})">Receipt</button></td></tr>`).join('')||'<tr><td class="note">No sales yet</td></tr>'}</table></div></div><div id="inv"></div>
+ <button class="btn d" onclick="if(confirm('Delete all sales history? Stock, medicines and purchases will not change.')){DB.sales=[];save();render()}">Reset data</button>`}};
+function mt(m,q){const t=q.toLowerCase().trim().split(/\s+/).filter(Boolean),b=m.brand.toLowerCase(),s=m.strength.toLowerCase();return t.every(w=>b.includes(w)||s.includes(w))}
+function brandSug(q){const w=q.toLowerCase().trim().split(/\s+/)[0];if(!w)return'';const bs=[...new Set(DB.meds.filter(m=>m.brand.toLowerCase().startsWith(w)).map(m=>m.brand))].slice(0,14);if(bs.length==1&&bs[0].toLowerCase()==q.toLowerCase().trim())return'';return bs.map(b=>`<button class="btn" onclick="pick(this.textContent)">${esc(b)}</button>`).join('')}
+function pick(b){q=b;render()}
+function keep(){const p=$('#sq').selectionStart;render();const e=$('#sq');e.focus();e.setSelectionRange(p,p)}
+function addCart(id){const m=med(id),av=stock(id),ex=DB.cart.find(c=>c.med==id),want=(ex?ex.qty:0)+1;
+ if(!m.price)return toast('Price missing – set it in the Medicines tab first');if(!av)return toast('No valid (unexpired) stock for this medicine');if(want>av)return toast('Only '+av+' available');
+ ex?ex.qty++:DB.cart.push({med:id,name:name(m),qty:1,price:m.price});render()}
+function checkout(){if(!DB.cart.length)return toast('Cart is empty');
+ const rx=$('#rx');
+ for(const c of DB.cart)if(c.qty>stock(c.med))return toast('Insufficient stock: '+c.name);
+ const items=DB.cart.map(c=>{let n=c.qty,used=[];valid(c.med).sort((a,b)=>a.exp<b.exp?-1:1).forEach(b=>{if(n<=0)return;const t=Math.min(n,b.qty);b.qty-=t;n-=t;used.push(b.no+'×'+t)});return{...c,batches:used.join(', ')}});
+ const sub=items.reduce((a,i)=>a+i.qty*i.price,0),d=Math.min(100,Math.max(0,+($('#dc').value||0))),total=+(sub*(1-d/100)).toFixed(2);
+ const s={id:nid(DB.sales),date:new Date().toISOString(),cust:$('#cu').value,rx:rx?rx.value:'',items,disc:d,total};DB.sales.push(s);DB.cart=[];save();toast('Sale completed');go('History');inv(s.id)}
+function inv(id){const s=DB.sales.find(x=>x.id==id);$('#inv').innerHTML=`<div class="card"><div style="text-align:center"><b>PharmaCare</b><div class="note">Square Pharma medicines · Receipt</div></div><h2>Invoice #${s.id}</h2><div class="note">${fdt(s.date)} · ${esc(s.cust||'Walk-in')}${s.rx?' · Rx: '+esc(s.rx):''}</div><div class="sc"><table><tr><th>Item</th><th>Qty</th><th>Price</th><th>Batches</th><th>Amount</th></tr>${s.items.map(i=>`<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${money(i.price)}</td><td>${i.batches}</td><td>${money(i.qty*i.price)}</td></tr>`).join('')}</table></div><p>Discount: ${s.disc}% · <b>Total: ${money(s.total)}</b></p><button class="btn p noprint" onclick="pdf(${s.id})">🖨 Print</button></div>`;stackTables();$('#inv').scrollIntoView()}
+async function pdf(id){const s=DB.sales.find(x=>x.id==id),J=window.jspdf&&window.jspdf.jsPDF;if(!s)return;if(!J)return window.print();
+const W=80,m=5,t=new J({unit:'mm',format:[W,100]});t.setFontSize(9);t.setFont('helvetica','bold');
+const L=s.items.map(i=>t.splitTextToSize(i.name,W-2*m)),H=Math.max(80,64+L.reduce((a,l)=>a+l.length*4+4.5,0)+(s.rx?5:0));
+const d=new J({unit:'mm',format:[W,H]});let y=11;
+const ct=(x,z,b)=>{d.setFont('helvetica',b?'bold':'normal');d.setFontSize(z);d.text(x,W/2,y,{align:'center'});y+=z*.42+1.6};
+const ln=()=>{d.setLineWidth(.2);d.line(m,y,W-m,y);y+=4.5};
+const lr=(a,b,bd)=>{d.setFont('helvetica',bd?'bold':'normal');d.setFontSize(9);d.text(a,m,y);d.text(b,W-m,y,{align:'right'});y+=4.5};
+const dt=new Date(s.date);
+ct('PharmaCare',14,1);ct('Square Pharma medicines - Receipt',8);y+=1;ln();
+lr('Invoice #'+s.id,dt.toLocaleDateString());lr('Time',dt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));lr('Customer',s.cust||'Walk-in');if(s.rx)lr('Prescription',s.rx);ln();
+s.items.forEach((i,k)=>{d.setFont('helvetica','bold');d.setFontSize(9);L[k].forEach(x=>{d.text(x,m,y);y+=4});lr(i.qty+' x Tk '+i.price,'Tk '+(i.qty*i.price).toFixed(2))});
+ln();const sub=s.items.reduce((a,i)=>a+i.qty*i.price,0);lr('Subtotal','Tk '+sub.toFixed(2));lr('Discount',s.disc+'%');lr('TOTAL','Tk '+s.total.toFixed(2),1);y+=3;ct('Thank you!',9);
+const name=((s.cust||'').replace(/[\\/:*?"<>|]/g,'').trim()||'Customer')+"'s Medicines.pdf";
+try{const dl=window.claude&&await window.claude.use('downloads');if(dl){await dl.save({filename:name,data:d.output('blob')});toast('Receipt PDF saved')}else d.save(name)}catch(e){if(!e||e.code!=='declined')toast('Could not save the PDF')}}
+function addMed(){const v=i=>$(i).value.trim();if(!v('#b')||!v('#g')||!+v('#p'))return toast('Brand, generic and price are required');
+ DB.meds.push({id:nid(DB.meds),form:v('#f')||'Tablet',brand:v('#b'),strength:v('#s'),generic:v('#g'),company:v('#c'),medex:'',price:+v('#p'),reorder:5,rx:$('#x').checked});toast('Medicine added');render()}
+const FORMS=['Tablet (Extended Release)','Tablet (Delayed Release)','Tablet (Chewable)','Tablet (Orodispersible)','Powder for Suspension','Powder for Injection','Oral Suspension','Oral Solution','Oral Saline','Pediatric Drop','Injectable Solution','IV Injection or Infusion','IV Infusion','IM Injection','SC Injection','Inhalation Capsule','Inhalation Solution','Nasal Spray','Nasal Drop','Eye Drop','Ear Drop','Eye Ointment','Scalp Solution','Test strip','Glucometer','Suppository','Ointment','Capsule','Syrup','Suspension','Injection','Cream','Lotion','Solution','Shampoo','Powder','Sachet','Gel','Spray','Drop','Inhaler','Tablet'];
+const FR=FORMS.map(f=>f.replace(/[()]/g,'\\$&')).join('|'),FRE=new RegExp('^('+FR+')$','i'),SFX=new RegExp('^(.*\\S)\\s+('+FR+')$','i');
+function impMxOld(){const L=$('#mx').value.split('\n').map(x=>x.trim()).filter(Boolean);let b=[],n=0;
+for(const l of L){if(/^(square.*|browse alphabetically|[a-z]|\d+|[‹›.…]+|thanks for using.*)$/i.test(l))continue;
+const m=l.match(/৳\s*([\d,]+(?:\.\d+)?)/);if(!m){if(/:$/.test(l))continue;b.push(l);continue}
+const price=+m[1].replace(/,/g,'');let nm='',fm='Tablet',r=[];
+if(b.length>1&&FRE.test(b[1])){nm=b[0];fm=b[1];r=b.slice(2)}else if(b.length){const k=b[0].match(SFX);nm=k?k[1]:b[0];fm=k?k[2]:'Tablet';r=b.slice(1)}
+b=[];if(!nm)continue;const st=r.length>1?r[0]:'',g=r.length>1?r.slice(1).join(' '):(r[0]||'');
+if(DB.meds.some(x=>x.brand==nm&&x.strength==st&&x.form==fm))continue;
+const id=nid(DB.meds);DB.meds.push({id,form:fm,brand:nm,strength:st,generic:g,company:'Square Pharmaceuticals PLC',medex:'',price,reorder:5,rx:RX.test(g)});
+const bn='B'+(100+id);DB.batches.push({id:nid(DB.batches),med:id,no:bn,exp:'2030-12-30',qty:100,cost:+(price*.7).toFixed(2)});
+DB.purchases.push({date:today(),sup:'Square Pharmaceuticals PLC',name:nm+' '+st+' ('+fm+')',no:bn,qty:100,cost:+(price*.7).toFixed(2)});n++}
+toast(n+' new medicines added');render()}
+function impMx(){const raw=$('#mx').value;if(raw.includes('৳')&&!/Pharmaceuticals PLC\.?\s*$/m.test(raw))return impMxOld();
+const K=[];for(const l of raw.split('\n').map(x=>x.trim()).filter(Boolean)){if(/^thanks for using/i.test(l))break;if(/^(square pharmaceuticals plc\.?\s*)?available brand names$|^browse alphabetically$|^([a-z]\s+)*[a-z]$|^[‹›.…\s\d]+$/i.test(l))continue;K.push(l)}
+const UN=/^(mg|mcg|gm|g|ml|iu|unit|units|billion|million|anti-xa|w\/w|w\/v|v\/v)\b/i;let n=0,sk=0,dp=0;
+K.join(' ').split(/Square Pharmaceuticals PLC\.?/i).map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean).forEach(c=>{
+let fm,rest;const m=c.match(new RegExp('^('+FR+')(?:\\s*\\([^)]*\\))?\\s+(.*)$','i'));
+if(m){fm=c.slice(0,c.length-m[2].length).trim();rest=m[2]}else{const i=c.indexOf(' ');fm=c.slice(0,i);rest=c.slice(i+1)}
+const t=rest.split(' ');let a=-1;for(let i=1;i<t.length;i++)if(/^\(?\d/.test(t[i])){a=i;break}
+if(a<0){sk++;return}
+let e=a;while(e<t.length&&(/\d|^[+\/()%]/.test(t[e])||UN.test(t[e])))e++;
+const nm=t.slice(0,a).join(' '),st=t.slice(a,e).join(' '),g=t.slice(e).join(' '),k=x=>x.brand.toLowerCase()+'|'+x.strength.toLowerCase().replace(/\s+/g,'');
+const nw={id:nid(DB.meds),form:fm,brand:nm,strength:st,generic:g,company:'Square Pharmaceuticals PLC',medex:'',price:0,reorder:5,rx:RX.test(g)};
+if(DB.meds.some(x=>k(x)==k(nw))){dp++;return}DB.meds.push(nw);n++});
+toast(n+' new added (set price), '+dp+' already in list, '+sk+' skipped');render()}
+function imp(){let n=0;$('#csv').value.split('\n').forEach(l=>{const a=l.split(',').map(x=>x.trim());if(a.length<6||!+a[5])return;DB.meds.push({id:nid(DB.meds),form:a[0],brand:a[1],strength:a[2],generic:a[3],company:a[4],medex:'',price:+a[5],reorder:5,rx:RX.test(a[3])});n++});toast(n+' medicines imported');render()}
+let psel=0;
+function pList(q){if(!q.trim())return'';return DB.meds.filter(m=>mt(m,q)).slice(0,12).map(m=>`<button class="btn" onclick="pPick(${m.id})">${esc(name(m))}</button>`).join('')||'<span class="note">No match</span>'}
+function pSearch(v){psel=0;$('#psel').textContent='No medicine selected';$('#plist').innerHTML=pList(v)}
+function pPick(id){psel=id;const m=med(id);$('#pms').value=m.brand+' '+m.strength;$('#plist').innerHTML='';$('#psel').innerHTML='Selected: <b>'+esc(name(m))+'</b> · MRP '+money(m.price);$('#pc').value=m.price}
+function sold(id){return DB.sales.some(s=>s.items.some(i=>i.med==id))}
+function exp3(){const d=new Date();d.setFullYear(d.getFullYear()+3);return d.toISOString().slice(0,10)}
+function recv(){const id=psel,no=$('#pn').value.trim()||('B'+Date.now().toString().slice(-6)),e=$('#pe').value,q=+$('#pq').value,c=+$('#pc').value;
+ if(!id)return toast('Search and select a medicine first');if(!e)return toast('Enter the expiry date');if(q<1||!c)return toast('Enter quantity and unit cost');if(e<today())return toast('Cannot receive an expired batch');
+ DB.batches.push({id:nid(DB.batches),med:id,no,exp:e,qty:q,cost:c});DB.purchases.push({date:today(),sup:$('#ps').value||'—',name:name(med(id)),no,qty:q,cost:c});toast('Stock received');render()}
+let lastDay=today();setInterval(()=>{const t=today();if(t!==lastDay){lastDay=t;if(tab==='Dashboard')render()}},20000);
+// ===== Cloud sync (Supabase). Fill these two values; leave empty for local-only mode =====
+const SB_URL='',SB_KEY='',NO_LOGIN=true,REVKEY='pharmacare_rev';
+let sb=null,sess=false,rev=+(localStorage.getItem(REVKEY)||0),lastJson='',timer=null,pulling=false,busy=false;
+const snap=()=>JSON.stringify({...DB,cart:[]});
+function showLogin(){let o=document.getElementById('login');if(!o){o=document.createElement('div');o.id='login';o.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px';document.body.appendChild(o)}
+ o.innerHTML=`<div class="card" style="width:100%;max-width:340px"><h2>💊 PharmaCare login</h2><div class="row"><input id="le" type="email" placeholder="Email" style="width:100%"></div><div class="row"><input id="lp" type="password" placeholder="Password" style="width:100%" onkeydown="if(event.key==='Enter')doLogin()"></div><button class="btn p" style="width:100%" onclick="doLogin()">Login</button></div>`}
+async function doLogin(){const{error}=await sb.auth.signInWithPassword({email:$('#le').value.trim(),password:$('#lp').value});if(error)return toast(error.message);sess=true;const o=$('#login');if(o)o.remove();await pull(true)}
+async function pull(first){if(!sb||!sess||busy||timer)return;busy=true;try{
+ const{data,error}=await sb.from('pharmacare_state').select('data,rev').eq('id',1).maybeSingle();
+ if(error){toast('Sync error: '+error.message);return}
+ if(!data){const r=await sb.from('pharmacare_state').insert({id:1,data:JSON.parse(snap()),rev:1});if(r.error){toast('Sync error: '+r.error.message);return}rev=1;lastJson=snap();localStorage.setItem(REVKEY,rev);toast('Data uploaded to cloud');return}
+ if(data.rev!==rev){const c=DB.cart;DB=data.data;DB.cart=c||[];fill(DB);rev=data.rev;localStorage.setItem(REVKEY,rev);lastJson=snap();pulling=true;render();pulling=false;if(!first)toast('Updated from another device')}
+ else if(!lastJson)lastJson=snap()
+}finally{busy=false}}
+async function push(){timer=null;if(!sb||!sess)return;const s=snap(),nr=rev+1;
+ const{data,error}=await sb.from('pharmacare_state').update({data:JSON.parse(s),rev:nr,updated_at:new Date().toISOString()}).eq('id',1).eq('rev',rev).select('rev');
+ if(error)return toast('Sync failed: '+error.message);
+ if(!data||!data.length){toast('Another device changed data first – reloading');await pull();return}
+ rev=nr;lastJson=s;localStorage.setItem(REVKEY,rev)}
+async function cloudInit(){if(!SB_URL||!SB_KEY||!window.supabase)return;sb=window.supabase.createClient(SB_URL,SB_KEY);
+ setInterval(()=>pull(),30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)pull()});
+ if(NO_LOGIN){sess=true;return pull(true)}
+ const{data}=await sb.auth.getSession();if(!data.session)return showLogin();sess=true;await pull(true)}
+const h=location.hash.slice(1);if(TABS.includes(h))tab=h;render();cloudInit();
+</script></body></html>
